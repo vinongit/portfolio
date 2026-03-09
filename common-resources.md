@@ -1,0 +1,377 @@
+# API Common Resources
+
+> This page provides shared reference material for authentication, rate limiting, idempotency, versioning, and other cross-cutting API concerns.  
+> All integration guides and API references in this portfolio link to this page as the single source of truth for these topics.
+
+---
+
+## Contents
+
+- [Authentication](#authentication)
+- [OAuth Scopes](#oauth-scopes)
+- [Rate Limiting](#rate-limiting)
+- [Idempotency](#idempotency)
+- [API Versioning](#api-versioning)
+- [Environments](#environments)
+- [Pagination](#pagination)
+- [Date and Time Formats](#date-and-time-formats)
+- [Currency Codes](#currency-codes)
+- [Webhook Events](#webhook-events)
+- [Glossary](#glossary)
+
+---
+
+## Authentication
+
+The Payments API uses **OAuth 2.0 Client Credentials** grant type. You exchange your `client_id` and `client_secret` for a short-lived Bearer token.
+
+### Token endpoint
+
+| Environment | URL |
+|---|---|
+| Sandbox | `https://api-m.sandbox.example.com/v1/oauth2/token` |
+| Production | `https://api-m.example.com/v1/oauth2/token` |
+
+### Request
+
+```bash
+curl -X POST https://api-m.sandbox.example.com/v1/oauth2/token \
+  -H "Accept: application/json" \
+  -H "Accept-Language: en_US" \
+  -u "CLIENT_ID:CLIENT_SECRET" \
+  -d "grant_type=client_credentials"
+```
+
+### Response
+
+```json
+{
+  "access_token": "A21AAxxxx",
+  "token_type": "Bearer",
+  "app_id": "APP-80W284485P519543T",
+  "expires_in": 32400,
+  "nonce": "2025-03-06T10:00:00ZqQOTj5H1Qz",
+  "scope": "https://uri.example.com/services/payments/payment"
+}
+```
+
+### Using the token
+
+Include the token in all API requests using the `Authorization` header:
+
+```
+Authorization: Bearer A21AAxxxx
+```
+
+### Token lifecycle
+
+| Property | Details |
+|---|---|
+| Validity | `expires_in` seconds (typically 32400 seconds / 9 hours) |
+| Reuse | Reuse the same token until it nears expiry |
+| Rotation | Request a new token before the current one expires; do not wait for a `401` |
+| Storage | Store server-side only. Never expose in client-side code, logs, or URLs |
+
+> **Security note:** Treat access tokens as secrets. If a token is compromised, regenerate your client credentials from the Example Developer Dashboard immediately.
+
+---
+
+## OAuth Scopes
+
+Scopes restrict what actions a token can perform. Request only the scopes your integration requires.
+
+| Scope URI | Description |
+|---|---|
+| `https://uri.example.com/services/payments/payment` | Create and manage orders and authorizations |
+| `https://uri.example.com/services/payments/refunds` | Issue refunds on captures |
+| `https://uri.example.com/services/subscriptions` | Create and manage subscription plans and subscriptions |
+| `https://uri.example.com/services/disputes` | Read and respond to buyer disputes |
+| `https://uri.example.com/services/reporting/search/read` | Access transaction reporting |
+| `openid` | Access basic identity information of the authenticated user |
+
+### Requesting specific scopes
+
+Append the `scope` parameter to your token request to limit permissions:
+
+```bash
+curl -X POST https://api-m.sandbox.example.com/v1/oauth2/token \
+  -H "Accept: application/json" \
+  -u "CLIENT_ID:CLIENT_SECRET" \
+  -d "grant_type=client_credentials&scope=https://uri.example.com/services/payments/payment https://uri.example.com/services/payments/refunds"
+```
+
+---
+
+## Rate Limiting
+
+Rate limits protect API availability and prevent abuse. Exceeding them results in `429 Too Many Requests` responses.
+
+### Default limits
+
+| Tier | Requests per minute | Requests per day |
+|---|---|---|
+| Standard (Sandbox) | 30 | 10,000 |
+| Standard (Production) | 150 | 100,000 |
+| Elevated (Production) | 500 | 500,000 |
+
+> Contact API support to request an elevated rate limit tier for high-volume integrations.
+
+### Rate limit headers
+
+Every API response includes headers to help you track your usage:
+
+| Header | Description |
+|---|---|
+| `X-RateLimit-Limit` | Maximum requests allowed in the current window |
+| `X-RateLimit-Remaining` | Requests remaining in the current window |
+| `X-RateLimit-Reset` | Unix timestamp when the current window resets |
+| `Retry-After` | Seconds to wait before retrying (only present on `429` responses) |
+
+### Handling 429 responses
+
+When you receive a `429`, implement **exponential backoff with jitter**:
+
+```python
+import time, random
+
+def request_with_backoff(fn, max_retries=5):
+    for attempt in range(max_retries):
+        response = fn()
+        if response.status_code != 429:
+            return response
+        wait = (2 ** attempt) + random.uniform(0, 1)
+        retry_after = int(response.headers.get("Retry-After", wait))
+        time.sleep(retry_after)
+    raise Exception("Max retries exceeded")
+```
+
+**Best practices:**
+- Monitor `X-RateLimit-Remaining` proactively; slow down requests before hitting the limit.
+- Use batch processing or webhooks for high-volume operations rather than polling.
+- Cache access tokens; generating one per request wastes your rate limit budget.
+
+---
+
+## Idempotency
+
+Idempotency allows you to safely retry API requests without the risk of creating duplicate transactions. This is critical for payment operations where network failures can leave the outcome uncertain.
+
+### How it works
+
+Include a unique `Example-Request-Id` header in `POST` requests. If Example Payments receives two requests with the same ID within 72 hours, it returns the original response without creating a duplicate resource.
+
+```
+Example-Request-Id: 7b92603e-77ed-4896-8e78-5dea2050476a
+```
+
+### Requirements
+
+| Requirement | Details |
+|---|---|
+| Format | UUID v4 recommended; any unique string up to 36 characters |
+| Uniqueness | Must be unique per distinct operation. Reuse only when retrying the same call. |
+| Scope | Scoped to your client ID |
+| Validity | Stored for 72 hours from first request |
+
+### When to use idempotency keys
+
+| Endpoint | Use idempotency key? |
+|---|---|
+| `POST /v2/checkout/orders` | **Yes** — prevents duplicate orders |
+| `POST /v2/checkout/orders/{id}/authorize` | **Yes** — prevents duplicate holds |
+| `POST /v2/payments/authorizations/{id}/capture` | **Yes** — prevents duplicate charges |
+| `POST /v2/payments/captures/{id}/refund` | **Yes** — prevents duplicate refunds |
+| `GET` requests | No — GET requests are inherently idempotent |
+
+### Generating idempotency keys
+
+```javascript
+// Node.js
+const { v4: uuidv4 } = require('uuid');
+const idempotencyKey = uuidv4();
+
+// Python
+import uuid
+idempotency_key = str(uuid.uuid4())
+```
+
+> **Important:** Generate a new key for each new logical operation. Do not reuse a key from a successful transaction for a different order or amount.
+
+---
+
+## API Versioning
+
+### Current version
+
+The current stable version of the Payments API is **v2**. All endpoints in this documentation target v2.
+
+### Version policy
+
+| Rule | Details |
+|---|---|
+| Version in URL | Versions are included in the URL path (for example, `/v2/checkout/orders`) |
+| Backward compatibility | Additive changes (new optional fields, new status values) are made without version increments |
+| Breaking changes | Require a version increment and are announced with a minimum 6-month deprecation period |
+| Sunset header | `Sunset` response header is added to deprecated endpoints with the planned removal date |
+
+### Checking for deprecations
+
+When a `Sunset` header appears in a response, plan migration before the indicated date:
+
+```
+Sunset: Sat, 31 Jan 2026 00:00:00 GMT
+Deprecation: Mon, 01 Jun 2025 00:00:00 GMT
+Link: <https://developer.example.com/api/rest/migration/v2>; rel="successor-version"
+```
+
+---
+
+## Environments
+
+| Environment | Purpose | Base URL |
+|---|---|---|
+| Sandbox | Development and integration testing | `https://api-m.sandbox.example.com` |
+| Production | Live transactions | `https://api-m.example.com` |
+
+### Key differences
+
+- Sandbox credentials and production credentials are separate. Do not mix them.
+- Sandbox transactions use simulated funds and do not move real money.
+- Webhook URLs must be reconfigured when moving from sandbox to production.
+- Some features (for example, certain card types) may behave differently in sandbox.
+
+---
+
+## Pagination
+
+Endpoints that return collections support cursor-based pagination.
+
+### Query parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `page_size` | integer | 10 | Number of records per page. Maximum: 500. |
+| `page` | integer | 1 | Page number to retrieve (1-indexed). |
+| `total_required` | boolean | `false` | If `true`, includes `total_items` and `total_pages` in the response. |
+
+### Paginated response
+
+```json
+{
+  "total_items": 48,
+  "total_pages": 5,
+  "transactions": [ /* ... */ ],
+  "links": [
+    { "href": "https://api-m.example.com/v1/reporting/transactions?page=1&page_size=10", "rel": "self" },
+    { "href": "https://api-m.example.com/v1/reporting/transactions?page=2&page_size=10", "rel": "next" },
+    { "href": "https://api-m.example.com/v1/reporting/transactions?page=5&page_size=10", "rel": "last" }
+  ]
+}
+```
+
+Use the `next` link to retrieve the subsequent page. Stop when no `next` link is present.
+
+---
+
+## Date and Time Formats
+
+All dates and timestamps in API requests and responses use **ISO 8601** format in UTC.
+
+| Format | Example | Used for |
+|---|---|---|
+| Date-time | `2025-03-06T10:45:00Z` | Transaction timestamps, expiry times |
+| Date | `2025-03-06` | Date-only filter parameters |
+
+**Parsing guidance:**
+
+- Always store and compare timestamps in UTC on your backend.
+- Convert to local time only at the display layer.
+- Timestamps from the API always end in `Z` (UTC). Do not assume any other timezone.
+
+---
+
+## Currency Codes
+
+The API uses **ISO 4217** three-letter currency codes.
+
+| Code | Currency |
+|---|---|
+| `USD` | United States Dollar |
+| `EUR` | Euro |
+| `GBP` | British Pound Sterling |
+| `AUD` | Australian Dollar |
+| `CAD` | Canadian Dollar |
+| `JPY` | Japanese Yen |
+| `INR` | Indian Rupee |
+| `SGD` | Singapore Dollar |
+
+**Amount formatting rules:**
+
+- Represent amounts as decimal strings (for example, `"100.00"` not `100`).
+- For zero-decimal currencies like JPY, omit the decimal (for example, `"1000"` not `"1000.00"`).
+- Never use commas as thousands separators in amount values.
+
+---
+
+## Webhook Events
+
+Webhooks push real-time event notifications to your server, avoiding the need to poll for status changes.
+
+### Relevant payment events
+
+| Event type | Trigger |
+|---|---|
+| `PAYMENT.AUTHORIZATION.CREATED` | An authorization is created successfully |
+| `PAYMENT.AUTHORIZATION.VOIDED` | An authorization is voided |
+| `PAYMENT.CAPTURE.COMPLETED` | A capture completes successfully |
+| `PAYMENT.CAPTURE.DECLINED` | A capture is declined |
+| `PAYMENT.CAPTURE.REFUNDED` | A capture is refunded |
+| `CHECKOUT.ORDER.APPROVED` | Buyer approves the order |
+| `CHECKOUT.ORDER.COMPLETED` | Order lifecycle is complete |
+
+### Webhook payload structure
+
+```json
+{
+  "id": "WH-6TD369808N914794D-5YJ87069RC912364T",
+  "event_type": "PAYMENT.CAPTURE.COMPLETED",
+  "event_version": "1.0",
+  "create_time": "2025-03-06T10:45:00Z",
+  "resource_type": "capture",
+  "resource": {
+    "id": "2GG279541U471931P",
+    "status": "COMPLETED",
+    "amount": { "currency_code": "USD", "value": "100.00" }
+  }
+}
+```
+
+### Validating webhook signatures
+
+Always verify the `EXAMPLE-TRANSMISSION-SIG` header to confirm the event originated from Example Payments before processing it.
+
+---
+
+## Glossary
+
+| Term | Definition |
+|---|---|
+| **Access token** | Short-lived credential used to authenticate API requests. Obtained via the OAuth 2.0 client credentials flow. |
+| **Authorization** | A hold placed on a buyer's payment method, reserving funds without collecting them. Valid for up to 29 days. |
+| **Buyer** | The person completing the payment through the Example Payments-hosted checkout flow. |
+| **Capture** | The act of collecting funds from an existing authorization. Can be full or partial. |
+| **Client credentials** | The `client_id` and `client_secret` pair used to obtain access tokens. Issued from the Example Developer Dashboard. |
+| **debug_id** | A unique identifier for an API request, included in error responses. Provide to API support when reporting issues. |
+| **Idempotency key** | A unique value (`Example-Request-Id`) that prevents duplicate operations when retrying a request. |
+| **Intent** | The purpose of an order. `CAPTURE` collects funds immediately; `AUTHORIZE` places a hold. |
+| **Merchant** | The business or developer receiving payment. |
+| **OAuth 2.0** | The authorization framework used to issue access tokens. |
+| **Order** | A Example Payments resource representing a buyer's intent to pay. Contains one or more purchase units. |
+| **Purchase unit** | A single purchase within an order. Each unit has its own amount and can settle to a separate merchant account. |
+| **Rate limit** | The maximum number of API requests allowed in a given time window. |
+| **Refund** | A reversal of a completed capture. Can be full or partial. |
+| **Sandbox** | Example Payments' testing environment. Transactions are simulated and no real funds are moved. |
+| **Scope** | An OAuth 2.0 permission that restricts what actions an access token can perform. |
+| **Seller protection** | A Example Payments programme that may protect merchants from chargebacks on eligible transactions. |
+| **Void** | Cancelling an active authorization, releasing the hold on buyer funds. |
+| **Webhook** | An HTTP callback that Example Payments sends to your server when a payment event occurs. |
