@@ -1,19 +1,28 @@
 # Payment Capture Integration Guide
 
-> **Audience:** Merchants and developers integrating card payment capture into their platforms.  
-> **Prerequisites:** A Example Payments sandbox account, client credentials (client ID and secret), and a basic understanding of REST APIs.  
-> **Related resources:** [Common Resources](./common-resources.md) · [Payments API Reference](./api-reference.md)
-
----
-
 ## Overview
 
-This guide walks you through the complete lifecycle of a card payment — from creating an order to capturing funds — using the Payments API. By the end of this guide, you will be able to:
+This guide walks you through the complete lifecycle of a card payment from creating an order to capturing funds using the Payments API. You can use this guide to:
 
 - Create and confirm a payment order.
 - Redirect the buyer through the approval flow.
 - Capture the authorized funds.
 - Handle partial captures and voided authorizations.
+
+<Note>This guide applies to merchants and partners who intends to integrate card payment capture into their platforms.</Note>
+
+---
+
+## Prerequisites
+
+> Sign up for a developer account at example.com:
+  > Go to **Account** > **Settings** > **Business**.
+  > Follow the step-by-step instructions to configure your business account.
+  > Retrieve your sandbox client ID and client secret.
+> Set up the sandbox environment:
+  > Go to **Account** > **Settings** > **Sandbox**.
+  > Follow the step-by-step instructions to configure the sandbox environment.
+  > Retrieve your sandbox client ID and client secret.
 
 ---
 
@@ -54,21 +63,21 @@ sequenceDiagram
 
 ---
 
-## Step 1 — Obtain an access token
+## Step 1: Get access token
 
-Before making any API call, authenticate using your client credentials. Refer to the [Authentication](./common-resources.md#authentication) section in Common Resources for the full OAuth 2.0 flow.
+Before making any API call, authenticate using your client credentials. 
 
-```bash
+<CodeGroup>
+
+```bash Sample request
 curl -X POST https://api-m.sandbox.example.com/v1/oauth2/token \
-  -H "Accept: application/json" \
-  -H "Accept-Language: en_US" \
-  -u "CLIENT_ID:CLIENT_SECRET" \
-  -d "grant_type=client_credentials"
+  -H 'Accept: application/json' \
+  -H 'Accept-Language: en_US' \
+  -u 'CLIENT_ID:CLIENT_SECRET' \
+  -d 'grant_type=client_credentials'
 ```
 
-**Response (200 OK)**
-
-```json
+```json Sample response
 {
   "access_token": "A21AAxxxx",
   "token_type": "Bearer",
@@ -76,22 +85,27 @@ curl -X POST https://api-m.sandbox.example.com/v1/oauth2/token \
   "scope": "https://uri.example.com/services/payments/payment"
 }
 ```
+</CodeGroup>
 
-Store the `access_token` securely. It expires after the duration specified in `expires_in` (in seconds). Do not expose the token in client-side code.
+Store the `access_token` securely. It expires after the duration specified in `expires_in` (in seconds).
+
+<Warning>Do not expose the token in client-side code.</Warning>
+
+Refer the [Authentication](./common-resources.md#authentication) section for more information.
 
 ---
 
-## Step 2 — Create an order
+## Step 2: Create order
 
 Create an order with `intent` set to `AUTHORIZE`. This reserves the payment method without collecting funds immediately.
 
-**Request**
+<CodeGroup>
 
-```bash
+```bash Sample request
 curl -X POST https://api-m.sandbox.example.com/v2/checkout/orders \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer ACCESS_TOKEN" \
-  -H "Example-Request-Id: 7b92603e-77ed-4896-8e78-5dea2050476a" \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer ACCESS_TOKEN' \
+  -H 'Example-Request-Id: 7b92603e-77ed-4896-8e78-5dea2050476a' \
   -d '{
     "intent": "AUTHORIZE",
     "purchase_units": [
@@ -117,11 +131,7 @@ curl -X POST https://api-m.sandbox.example.com/v2/checkout/orders \
   }'
 ```
 
-> **Note:** `Example-Request-Id` is an idempotency key. Reuse it to safely retry the same call without creating duplicate orders. See [Idempotency](./common-resources.md#idempotency) in Common Resources.
-
-**Response (201 Created)**
-
-```json
+```json Sample response
 {
   "id": "5O190127TN364715T",
   "status": "CREATED",
@@ -144,20 +154,21 @@ curl -X POST https://api-m.sandbox.example.com/v2/checkout/orders \
   ]
 }
 ```
+</CodeGroup>
 
-Parse the `links` array for the `approve` URL — this is where you redirect the buyer.
+<Note>`Example-Request-Id` is an idempotency key. You can reuse it to safely retry the same call without creating duplicate orders. Refer the [Idempotency](./common-resources.md#idempotency) section in Common Resources for more information.</Note>
 
 ---
 
-## Step 3 — Redirect the buyer for approval
+## Step 3: Redirect the buyer for approval
 
-Redirect the buyer to the `approve` URL extracted from the response:
+Use the `approve` URL returned in the response to redirect the buyer to the specific page.
 
 ```
 https://www.sandbox.example.com/checkoutnow?token=5O190127TN364715T
 ```
 
-The buyer logs in, reviews the order, and approves the payment. Example Payments then redirects back to your `return_url` with `token` and `PayerID` query parameters appended:
+The buyer logs in, reviews the order, and approves the payment. Payments then redirects back to your `return_url` with `token` and `PayerID` query parameters appended:
 
 ```
 https://yoursite.com/checkout/return?token=5O190127TN364715T&PayerID=YOURCUSTOMERID
@@ -165,22 +176,20 @@ https://yoursite.com/checkout/return?token=5O190127TN364715T&PayerID=YOURCUSTOME
 
 ---
 
-## Step 4 — Authorize the payment
+## Step 4: Authorize the payment
 
 Once the buyer approves, authorize the payment to place a hold on the funds.
 
-**Request**
+<CodeGroup>
 
-```bash
+```bash Sample request
 curl -X POST https://api-m.sandbox.example.com/v2/checkout/orders/5O190127TN364715T/authorize \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer ACCESS_TOKEN" \
-  -H "Example-Request-Id: 3c5e2090-bc34-4c10-9f52-6d3fa9961882"
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer ACCESS_TOKEN' \
+  -H 'Example-Request-Id: 3c5e2090-bc34-4c10-9f52-6d3fa9961882'
 ```
 
-**Response (201 Created)**
-
-```json
+```json Sample response
 {
   "id": "5O190127TN364715T",
   "status": "COMPLETED",
@@ -203,21 +212,23 @@ curl -X POST https://api-m.sandbox.example.com/v2/checkout/orders/5O190127TN3647
 }
 ```
 
+</CodeGroup>
+
 Record the `authorization_id` (`3C679366HH908993T`). It is required for the capture step. Note the `expiration_time` — authorizations expire after 29 days if not captured.
 
 ---
 
 ## Step 5 — Capture the payment
 
-Capture the authorized funds to complete the transaction.
+Pass the `authorization_id` from the authorization response as the path parameter to capture the authorized funds and complete the transaction.
 
 **Request — Full capture**
 
 ```bash
 curl -X POST https://api-m.sandbox.example.com/v2/payments/authorizations/3C679366HH908993T/capture \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer ACCESS_TOKEN" \
-  -H "Example-Request-Id: 9d8a7f21-cc45-5e33-8g61-7e4gb0072993" \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer ACCESS_TOKEN' \
+  -H 'Example-Request-Id: 9d8a7f21-cc45-5e33-8g61-7e4gb0072993' \
   -d '{
     "final_capture": true,
     "note_to_payer": "Thank you for your purchase!"
@@ -230,8 +241,8 @@ To capture only part of the authorized amount, include the `amount` object:
 
 ```bash
 curl -X POST https://api-m.sandbox.example.com/v2/payments/authorizations/3C679366HH908993T/capture \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer ACCESS_TOKEN" \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer ACCESS_TOKEN' \
   -d '{
     "amount": { "currency_code": "USD", "value": "60.00" },
     "final_capture": false
@@ -264,8 +275,8 @@ If you need to cancel a hold without capturing, void the authorization.
 
 ```bash
 curl -X POST https://api-m.sandbox.example.com/v2/payments/authorizations/3C679366HH908993T/void \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer ACCESS_TOKEN"
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer ACCESS_TOKEN'
 ```
 
 **Response (204 No Content)**
@@ -304,4 +315,3 @@ Always validate the full flow — from order creation to capture — in the sand
 
 - Review the [Payments API Reference](./api-reference.md) for the complete schema of all endpoints used in this guide.
 - See [Common Resources](./common-resources.md) for authentication setup, rate limiting guidelines, idempotency keys, and error structures.
-- Explore [Subscriptions](./subscriptions-guide.md) *(coming soon)* for recurring billing flows.

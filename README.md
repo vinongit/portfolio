@@ -1,6 +1,8 @@
-# Technical Writing Portfolio — Vinoth Shanmugam
+# Portfolio | Vinoth Shanmugam
 
-Senior Technical Writer with 14+ years of experience in developer documentation, API references, and integration guides. This repository showcases writing samples that reflect real-world documentation standards used at companies like PayPal and FIS Global.
+Senior Technical Writer with 15+ years of experience in delivering high-impact developer and compliance-driven documentation across software, fintech, and aerospace domains. Proven expertise in API documentation, information architecture, and Docs-as-Code ecosystems, with a strong foundation in structured authoring (DITA, S1000D) and regulatory standards.
+
+This repository showcases writing samples that reflect real-world documentation standards.
 
 ---
 
@@ -8,9 +10,9 @@ Senior Technical Writer with 14+ years of experience in developer documentation,
 
 | File | Type | Description |
 |---|---|---|
-| [`index.html`](./index.html) | Portfolio site | Landing page — open in a browser or via GitHub Pages |
+| [`index.html`](./index.html) | Portfolio site | Landing page |
 | [`integration-guide.md`](./integration-guide.md) | Integration Guide | End-to-end payment capture guide with Mermaid sequence diagram |
-| [`api-reference.md`](./api-reference.md) | API Reference | Full Payments API reference with schemas, status codes, and error handling |
+| [`api-reference.md`](./api-reference.md) | API Reference | Payments API reference with schemas, status codes, and error handling |
 | [`common-resources.md`](./common-resources.md) | Shared Reference | Cross-cutting topics: auth, rate limiting, idempotency, versioning, glossary |
 
 ---
