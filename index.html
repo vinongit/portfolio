@@ -17,10 +17,10 @@
   --shadow-lg:0 8px 40px rgba(0,0,0,0.10);
 }
 [data-theme="dark"] {
-  --bg:#141210; --surface:#1e1b18; --surface-2:#252219;
-  --border:#333028; --ink:#f0ece3; --ink-2:#9a9080;
+  --bg:#07080f; --surface:#0e0f1a; --surface-2:#151624;
+  --border:#252738; --ink:#4d9e82; --ink-2:#f0ece3;
   --accent:#4d9e82; --accent-pale:#1a2e28; --accent-2:#c97a50;
-  --tag-bg:#2a271f; --sidebar-bg:#191611; --nav-bg:#191611;
+  --tag-bg:#11221c; --sidebar-bg:#07080f; --nav-bg:#07080f;
   --pill-bg:#2a271f; --shadow:0 2px 16px rgba(0,0,0,0.35);
   --shadow-lg:0 8px 40px rgba(0,0,0,0.45);
 }
@@ -39,7 +39,13 @@ body{
   display:flex;align-items:center;justify-content:space-between;
   transition:background var(--transition);
 }
-.nav-brand{font-family:'DM Mono',monospace;font-size:0.78rem;letter-spacing:0.12em;color:var(--ink-2);text-transform:uppercase;}
+.tabnav{
+  position:sticky;top:0;z-index:200;background:var(--nav-bg);
+  border-bottom:1px solid var(--border);padding:0 2rem;height:54px;
+  display:flex;align-items:center;justify-content:left;
+  transition:background var(--transition);
+}
+.nav-brand{font-family:'DM Mono',monospace;font-size:1rem;letter-spacing:0.12em;color:var(--ink-2);text-transform:uppercase;}
 .nav-right{display:flex;align-items:center;gap:0.6rem;}
 .tab-btn{
   font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:400;
@@ -82,7 +88,7 @@ body{
   font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.2em;
   text-transform:uppercase;color:var(--ink-2);padding:1.5rem 1.6rem 0.5rem;opacity:0.6;
 }
-.home-content{flex:1;overflow-y:auto;padding:3.5rem 4rem;max-width:900px;}
+.home-content{flex:1;overflow-y:auto;padding:3.5rem 4rem;max-width:1200px;}
 .sub-panel{display:none;}
 .sub-panel.active{display:block;}
 
@@ -93,13 +99,13 @@ body{
 }
 .about-hero h1{
   font-family:'Fraunces',serif;font-size:clamp(2.6rem,4.5vw,4rem);
-  font-weight:700;line-height:1.1;margin-bottom:1.2rem;
+  font-weight:700;line-height:1.1;margin-bottom:1.2rem;color:var(--ink-2);
 }
 .about-hero h1 em{font-style:italic;font-weight:300;color:var(--accent);}
-.about-lead{font-size:1rem;color:var(--ink-2);max-width:600px;line-height:1.9;margin-bottom:2.5rem;}
+.about-lead{font-size:1rem;color:var(--ink-2);max-width:1000px;line-height:1.9;margin-bottom:2.5rem;}
 .tag-cluster{display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:3rem;}
 .tag{
-  font-family:'DM Mono',monospace;font-size:0.68rem;letter-spacing:0.05em;
+  font-family:'DM Mono',monospace;font-size:0.75rem;letter-spacing:0.05em;
   padding:0.28rem 0.7rem;background:var(--tag-bg);border:1px solid var(--border);
   border-radius:3px;color:var(--ink-2);transition:background var(--transition);
 }
@@ -142,7 +148,7 @@ body{
 .section-rule{border:none;border-top:1px solid var(--border);margin:3rem 0;}
 
 /* RESUME */
-.resume-wrap{max-width:800px;}
+.resume-wrap{max-width:1000px;}
 .resume-header{
   display:flex;align-items:flex-start;justify-content:space-between;
   gap:1.5rem;padding-bottom:1.8rem;border-bottom:2px solid var(--accent);
@@ -162,7 +168,7 @@ body{
 .job{margin-bottom:1.8rem;}
 .job-header{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:0.3rem;margin-bottom:0.2rem;}
 .job-company{font-weight:500;font-size:0.95rem;}
-.job-period{font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--accent);white-space:nowrap;}
+.job-period{font-family:'DM Mono',monospace;font-size:0.78rem;color:var(--accent);white-space:nowrap;}
 .job-role{font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--ink-2);margin-bottom:0.6rem;letter-spacing:0.04em;}
 .job-meta-grid{display:grid;grid-template-columns:auto 1fr;gap:0.2rem 0.8rem;font-size:0.8rem;margin-bottom:0.8rem;}
 .job-meta-label{font-weight:500;color:var(--ink);white-space:nowrap;}
@@ -190,11 +196,11 @@ body{
 .resume-print-btn:hover{border-color:var(--accent);color:var(--accent);}
 
 /* WORK SAMPLES */
-#panel-samples{flex-direction:column;padding:3.5rem 4rem;}
+#panel-samples{flex-direction:column;padding:3.5rem 4rem;justify-content:space-evenly;}
 .samples-header{margin-bottom:3rem;}
 .samples-eyebrow{font-family:'DM Mono',monospace;font-size:0.7rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--accent);margin-bottom:0.8rem;}
 .samples-header h2{font-family:'Fraunces',serif;font-size:2rem;font-weight:600;line-height:1.2;margin-bottom:0.8rem;}
-.samples-header p{font-size:0.92rem;color:var(--ink-2);max-width:560px;line-height:1.8;}
+.samples-header p{font-size:0.92rem;color:var(--ink-2);max-width:1000px;line-height:1.8;}
 .samples-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem;}
 .sample-card{
   background:var(--surface);border:1px solid var(--border);border-radius:8px;
@@ -248,11 +254,16 @@ body{
 
 <!-- TOP NAV -->
 <nav class="topnav">
-  <span class="nav-brand">Vinoth | TW | Portfolio</span>
+  <span class="nav-brand">Vinoth's Portfolio</span>
   <div class="nav-right">
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn" title="Toggle theme">🌙</button>
+  </div>
+</nav>
+
+<nav class="tabnav">
+  <div>
     <button class="tab-btn active" onclick="switchTab('home',this)">Home</button>
     <button class="tab-btn" onclick="switchTab('samples',this)">Work Samples</button>
-    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn" title="Toggle theme">🌙</button>
   </div>
 </nav>
 
@@ -272,7 +283,7 @@ body{
     <section id="sub-about" class="sub-panel active">
       <div class="about-hero">
         <p class="about-eyebrow">Technical Writing Portfolio</p>
-        <h1>Vinoth<br/><em>Shanmugam</em></h1>
+        <h1>Vinoth <em>Shanmugam</em></h1>
         <p class="about-lead">Senior Technical Writer with 15+ years of experience delivering high-impact developer and compliance-driven documentation across software, fintech, and aerospace domains.</p>
       </div>
 
@@ -293,7 +304,7 @@ body{
 
       <div class="about-body">
         <h2>Turning complexity into clarity</h2>
-        <p>I work at the intersection of engineering and communication — translating APIs, payment flows, and platform architectures into documentation that developers can actually use. My experience spans fintech, banking software, aerospace, and enterprise SaaS.</p>
+        <p>I work at the intersection of engineering and communication to translate APIs, payment flows, and platform architectures into documentation that developers can actually use. My experience spans fintech, banking software, aerospace, and enterprise SaaS.</p>
         <p>I advocate for structured authoring, rigorous information architecture, and a Docs-as-Code discipline that keeps documentation as close to the product as possible. I lead documentation modernisation initiatives, establish governance frameworks, and drive platform migrations to improve developer experience and content scalability.</p>
         <p>I collaborate closely with product, engineering, and QA teams to translate complex systems into clear, accurate, and user-focused documentation.</p>
       </div>
@@ -302,35 +313,36 @@ body{
 
       <div class="about-body">
         <h2>Experience</h2>
-      </div>
-      <ul class="exp-list">
-        <li class="exp-item">
-          <span class="exp-company">PayPal</span>
-          <span class="exp-period">Jan 2025 – Apr 2026</span>
-          <span class="exp-role">Senior Technical Writer · Chennai</span>
-        </li>
-        <li class="exp-item">
-          <span class="exp-company">FIS Global Solutions</span>
-          <span class="exp-period">Jun 2018 – Jan 2025</span>
-          <span class="exp-role">Technical Writer Specialist · Chennai</span>
-        </li>
-        <li class="exp-item">
-          <span class="exp-company">Intellect Design Arena</span>
-          <span class="exp-period">Aug 2016 – Jun 2018</span>
-          <span class="exp-role">Team Lead, Technical Writing · Chennai</span>
-        </li>
-        <li class="exp-item">
-          <span class="exp-company">LionBridge Technologies (Client: Rolls Royce)</span>
-          <span class="exp-period">Jun 2010 – Jul 2016</span>
-          <span class="exp-role">Lead Author · Chennai</span>
-        </li>
-      </ul>
+        <ul class="exp-list">
+          <li class="exp-item">
+            <span class="exp-company">PayPal</span>
+            <span class="exp-period">Jan 2025 – Apr 2026</span>
+            <span class="exp-role">Senior Technical Writer · Chennai</span>
+          </li>
+          <li class="exp-item">
+            <span class="exp-company">FIS Global Solutions</span>
+            <span class="exp-period">Jun 2018 – Jan 2025</span>
+            <span class="exp-role">Technical Writer Specialist · Chennai</span>
+          </li>
+          <li class="exp-item">
+            <span class="exp-company">Intellect Design Arena</span>
+            <span class="exp-period">Aug 2016 – Jun 2018</span>
+            <span class="exp-role">Team Lead, Technical Writing · Chennai</span>
+          </li>
+          <li class="exp-item">
+            <span class="exp-company">LionBridge Technologies</span>
+            <span class="exp-period">Jun 2010 – Jul 2016</span>
+            <span class="exp-role">Lead Author · Chennai</span>
+          </li>
+        </ul>
 
-      <div style="margin-top:3rem;">
-        <div class="cta-strip">
-          <p>Want full detail on responsibilities, tools, and standards for each role?</p>
-          <button class="cta-btn outline" onclick="switchSubPanel('resume')">View Full Resume →</button>
+        <div style="margin-top:2rem;">
+          <div class="cta-strip">
+            <p>Want full detail on responsibilities, tools, and standards for each role?</p>
+            <button class="cta-btn" onclick="switchSubPanel('resume')">View Full Resume ↗</button>
+          </div>
         </div>
+
       </div>
 
       <div class="contact-row">
@@ -364,6 +376,22 @@ body{
         </div>
 
         <div class="resume-section">
+          <div class="resume-section-title">Skills</div>
+          <div class="skills-grid">
+            <span class="skill-pill">Technical Writing</span><span class="skill-pill">DITA</span>
+            <span class="skill-pill">XML / Markdown</span><span class="skill-pill">Structured Authoring</span>
+            <span class="skill-pill">CMS Management</span><span class="skill-pill">Git / GitHub</span>
+            <span class="skill-pill">Information Architecture</span><span class="skill-pill">Docs-as-Code</span>
+            <span class="skill-pill">Document Quality</span><span class="skill-pill">Artificial Intelligence</span>
+            <span class="skill-pill">Project Management</span><span class="skill-pill">User Experience (UX)</span>
+            <span class="skill-pill">User Advocacy</span><span class="skill-pill">S1000D</span>
+            <span class="skill-pill">STE</span><span class="skill-pill">API Documentation</span>
+            <span class="skill-pill">Mermaid Diagrams</span>
+            <span class="skill-pill">AI-assisted workflows</span>
+          </div>
+        </div>
+
+        <div class="resume-section">
           <div class="resume-section-title">Experience</div>
 
           <div class="job">
@@ -380,22 +408,25 @@ body{
               <span class="job-meta-label">AI tools</span><span class="job-meta-val">Claude, ChatGPT, Mermaid</span>
             </div>
             <ul class="job-bullets">
-              <li>Analyse demand requests, Jira epics, PRDs, API specifications, and related inputs from product and engineering teams.</li>
-              <li>Collaborate with stakeholders to understand product behaviour, integration flows, and technical constraints.</li>
-              <li>Develop <strong>developer-focused documentation</strong> for merchants and partners with emphasis on accuracy, usability, and IA. Validate sandbox workflows, perform API testing, follow a <strong>Docs-as-Code</strong> approach using Markdown (.mdx), Git, and Mintlify. Create workflows and sequence diagrams using Mermaid and Figma.</li>
-              <li>Handle Run-the-Business (RTB) tickets and migration initiatives — revamping and migrating legacy documentation to docs.paypal.ai.</li>
-              <li><strong>Leverage AI-assisted workflows</strong> for concept clarification, edge-case identification, IA design, and editorial reviews.</li>
-              <li>Conduct pod-level peer reviews and act as quality gate for deliverables.</li>
-              <li>Define and maintain guidelines to improve content quality and consistency across doc sets.</li>
+              <li>Analyzed demand requests, Jira epics, Product Requirements Documents (PRDs), API specifications, and related inputs from global engineering, product, and SMEs for documentation priorities and delivery sequencing.</li>
+              <li>Collaborated with global cross-functional stakeholders to understand product behavior, integration flows, and technical constraints.</li>
+              <li>Developed <strong>developer-focused documentation</strong> for merchants and partners with emphasis on accuracy, end-user usability, and <strong>IA</strong>.</li>
+              <li><strong>Validated sandbox workflows</strong> and <strong>performed API testing</strong> before documenting procedures.</li>
+              <li>Used the <strong>Docs-as-Code ecosystem</strong> to author and maintain versioning using <strong>Markdown (.mdx)</strong>, <strong>GitHub</strong>, CI/CD pipelines, and publish using <strong>Mintlify</strong>.</li>
+              <li>Created product workflows and sequence diagrams using Mermaid and Figma, and engaged with design teams to deliver final assets aligned with PayPal design standards.</li>
+              <li>Handled Run-the-Business (RTB) tickets and migration initiatives by revamping and migrating legacy documentation from <a href="https://developer.paypal.com" target="_blank">developer.paypal.com</a> to <a href="https://docs.paypal.ai" target="_blank">docs.paypal.ai</a>.</li>
+              <li><strong>Leveraged AI-assisted workflows</strong> throughout the documentation lifecycle to improve efficiency and quality, including concept clarification, edge-case identification, IA design, and editorial reviews.</li>
+              <li>Led and mentored a pod containing three technical writers. Resolved queries, approved pull requests (PRs), and acted as a <strong>quality gate</strong> for deliverables, ensuring consistency, completeness, and adherence to documentation standards.</li>
+              <li>Defined and maintained <strong>documentation standards</strong> to improve content quality, and ensure consistency across doc sets.</li>
             </ul>
           </div>
 
           <div class="job">
             <div class="job-header">
-              <span class="job-company">FIS Global Solutions Pvt Ltd</span>
+              <span class="job-company">FIS Global Solutions Pvt. Ltd.</span>
               <span class="job-period">June 2018 – January 2025</span>
             </div>
-            <div class="job-role">Technical Writer Specialist · Chennai <br/><strong>Promotion</strong>: Senior TW → TW Specialist</div>
+            <div class="job-role">Technical Writer Specialist · Chennai &nbsp;·&nbsp; Promotion: Senior TW → TW Specialist</div>
             <span class="job-award">🏆 Above &amp; Beyond · Recognition for Team Effort · Win as One Team</span>
             <div class="job-meta-grid">
               <span class="job-meta-label">Product</span><span class="job-meta-val">IST (Information Switching Technology)</span>
@@ -409,13 +440,13 @@ body{
               <li>Created and maintained <strong>compliance-driven documentation</strong> aligned with Network Compliance Mandates, PCI SSF directives, and audits.</li>
               <li>Produced Data Flow Diagrams, process flow diagrams, system architecture, and entity relationship diagrams using MS Visio.</li>
               <li>Identified documentation gaps, improved content quality, and ensured adherence to organisational standards.</li>
-              <li>Established and maintained the Client Portal site, Sitecore repository, and documentation process.</li>
+              <li>Established and maintained the <strong>Client Portal</strong> site, <strong>Sitecore</strong> repository, and documentation process.</li>
             </ul>
           </div>
 
           <div class="job">
             <div class="job-header">
-              <span class="job-company">Intellect Design Arena Ltd</span>
+              <span class="job-company">Intellect Design Arena Ltd.</span>
               <span class="job-period">August 2016 – June 2018</span>
             </div>
             <div class="job-role">Team Lead, Technical Writing · Chennai</div>
@@ -428,47 +459,32 @@ body{
             </div>
             <ul class="job-bullets">
               <li>Created, revised, and managed developer guides, deployment guides, reference guides, release notes, and presentations for new features and enhancements.</li>
-              <li>Produced deployment and instructional videos across different application servers.</li>
-              <li>Contributed to UI/UX and business process testing from an end-user and documentation perspective.</li>
+              <li>Produced <strong>deployment and instructional videos</strong> across different application servers.</li>
+              <li>Contributed to <strong>UI/UX and business process testing</strong> from an end-user and documentation perspective.</li>
               <li>Conducted introductory sessions about the product for internal teams.</li>
             </ul>
           </div>
 
           <div class="job">
             <div class="job-header">
-              <span class="job-company">LionBridge Technologies Pvt Ltd &nbsp;<span style="font-weight:300;font-size:0.85em;">· Client: Rolls Royce, UK</span></span>
+              <span class="job-company">LionBridge Technologies Pvt. Ltd. &nbsp;<span style="font-weight:300;font-size:0.85em;">[Client: Rolls Royce, UK]</span></span>
               <span class="job-period">June 2010 – July 2016</span>
             </div>
-            <div class="job-role">Lead Author · Chennai &nbsp;·&nbsp; Promoted: TW → Senior TW → Lead Author &nbsp;·&nbsp; Onsite: Derby, UK (Mar–Aug 2012)</div>
+            <div class="job-role">Lead Author · Chennai &nbsp;·&nbsp; Promotion: TW → Senior TW → Lead Author &nbsp;·&nbsp; Onsite: Derby, UK (Mar–Aug 2012)</div>
             <span class="job-award">🏆 Star Award · Certificate of Excellence from Rolls Royce</span>
             <div class="job-meta-grid">
               <span class="job-meta-label">Manuals</span><span class="job-meta-val">AMM, EM, CIR, Tooling Jobs, TASKs / Data Modules (DMs)</span>
-              <span class="job-meta-label">Engines</span><span class="job-meta-val">BR700NG, TP400, Trent XWB/500/700/800/900/1000, RB211 series (524 &amp; 535)</span>
+              <!-- <span class="job-meta-label">Engines</span><span class="job-meta-val">BR700NG, TP400, Trent XWB/500/700/800/900/1000, RB211 series (524 &amp; 535)</span> -->
               <span class="job-meta-label">Tools</span><span class="job-meta-val">Epic Editor 5.4, UltraCSDB, PS 2000, Team Center, MS Office, Adobe Acrobat Pro, PDF X Viewer</span>
               <span class="job-meta-label">Standards</span><span class="job-meta-val">S1000D, Simplified Technical English (STE), ATA100, iSpec 2200</span>
             </div>
             <ul class="job-bullets">
               <li>Performed Internal Quality Check (IQC) and delivered manuals within scheduled timelines.</li>
-              <li>Managed team workload and tracked work packs throughout their lifecycle.</li>
-              <li>Created and revised Maintenance Manual TASKs and Data Modules (DMs).</li>
-              <li>Incorporated Service Bulletins (SBs), tooling jobs, and Request for Manual Revisions (RMRs) across various manuals.</li>
+              <li>Led and mentored a team. Managed the team's workload, tracked work packs end-to-end, and ensured on-time delivery within high-precision aerospace documentation environments.</li>
+              <li>Owned creation, revision, and lifecycle management of <strong>Maintenance Manual TASKs</strong> and <strong>Data Modules (DMs)</strong> across AMM, EM, CIR, and tooling documentation.</li>
+              <li>Incorporated <strong>Service Bulletins (SBs)</strong>, <strong>tooling jobs</strong>, and <strong>Request for Manual Revisions (RMRs)</strong> across various manuals.</li>
               <li>Trained new recruits and ensured seamless transition into the team.</li>
             </ul>
-          </div>
-        </div>
-
-        <div class="resume-section">
-          <div class="resume-section-title">Skills</div>
-          <div class="skills-grid">
-            <span class="skill-pill">Technical Writing</span><span class="skill-pill">DITA</span>
-            <span class="skill-pill">XML / Markdown</span><span class="skill-pill">Structured Authoring</span>
-            <span class="skill-pill">CMS Management</span><span class="skill-pill">Git</span>
-            <span class="skill-pill">Information Architecture</span><span class="skill-pill">Document Quality</span>
-            <span class="skill-pill">Project Management</span><span class="skill-pill">User Experience (UX)</span>
-            <span class="skill-pill">User Advocacy</span><span class="skill-pill">S1000D</span>
-            <span class="skill-pill">STE</span><span class="skill-pill">API Documentation</span>
-            <span class="skill-pill">Docs-as-Code</span><span class="skill-pill">Mermaid Diagrams</span>
-            <span class="skill-pill">AI-assisted workflows</span>
           </div>
         </div>
 
@@ -500,7 +516,7 @@ body{
     <div class="samples-header">
       <p class="samples-eyebrow">Writing Samples</p>
       <h2>Documentation Portfolio</h2>
-      <p>Real-world documentation artefacts built to professional standards — integration guides, API references, and shared resource docs.</p>
+      <p>Real-world documentation artefacts built to professional standards: integration guides, API references, and shared resource docs.</p>
     </div>
     <div class="samples-grid">
       <a class="sample-card" href="integration-guide.md">
