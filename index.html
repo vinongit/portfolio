@@ -1,388 +1,589 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Vinoth Shanmugam | Technical Writing Portfolio</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,700;1,300&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
-  :root {
-    --ink: #0d0d0d;
-    --paper: #f5f2eb;
-    --accent: #4a2310;
-    --muted: #7a7060;
-    --rule: #d4cfc4;
-    --card-bg: #d5d5d5;
-  }
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* ─── TOKENS ─────────────────────────────────────────────── */
+:root { --transition: 0.25s ease; }
+[data-theme="light"] {
+  --bg:#f0ece3; --surface:#faf8f3; --surface-2:#ede9e0;
+  --border:#d8d2c6; --ink:#1a1714; --ink-2:#5a5448;
+  --accent:#2d5f4f; --accent-pale:#e6f0ed; --accent-2:#8b3a1a;
+  --tag-bg:#e8e4db; --sidebar-bg:#e8e3d8; --nav-bg:#e8e3d8;
+  --pill-bg:#ddd9d0; --shadow:0 2px 16px rgba(0,0,0,0.07);
+  --shadow-lg:0 8px 40px rgba(0,0,0,0.10);
+}
+[data-theme="dark"] {
+  --bg:#141210; --surface:#1e1b18; --surface-2:#252219;
+  --border:#333028; --ink:#f0ece3; --ink-2:#9a9080;
+  --accent:#4d9e82; --accent-pale:#1a2e28; --accent-2:#c97a50;
+  --tag-bg:#2a271f; --sidebar-bg:#191611; --nav-bg:#191611;
+  --pill-bg:#2a271f; --shadow:0 2px 16px rgba(0,0,0,0.35);
+  --shadow-lg:0 8px 40px rgba(0,0,0,0.45);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);color:var(--ink);
+  font-family:'DM Sans',sans-serif;font-weight:300;line-height:1.7;
+  min-height:100vh;transition:background var(--transition),color var(--transition);
+}
 
-  body {
-    background: var(--paper);
-    color: var(--ink);
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-weight: 300;
-    line-height: 1.7;
-  }
+/* NAV */
+.topnav{
+  position:sticky;top:0;z-index:200;background:var(--nav-bg);
+  border-bottom:1px solid var(--border);padding:0 2rem;height:54px;
+  display:flex;align-items:center;justify-content:space-between;
+  transition:background var(--transition);
+}
+.nav-brand{font-family:'DM Mono',monospace;font-size:0.78rem;letter-spacing:0.12em;color:var(--ink-2);text-transform:uppercase;}
+.nav-right{display:flex;align-items:center;gap:0.6rem;}
+.tab-btn{
+  font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:400;
+  letter-spacing:0.06em;text-transform:uppercase;
+  background:none;border:none;cursor:pointer;color:var(--ink-2);
+  padding:0.35rem 0.9rem;border-radius:4px;
+  transition:background var(--transition),color var(--transition);
+}
+.tab-btn:hover{background:var(--surface-2);color:var(--ink);}
+.tab-btn.active{background:var(--accent);color:#fff;}
+.theme-toggle{
+  width:36px;height:36px;border-radius:50%;border:1px solid var(--border);
+  background:var(--surface);cursor:pointer;display:flex;align-items:center;
+  justify-content:center;font-size:1rem;flex-shrink:0;
+  transition:background var(--transition),border-color var(--transition);
+}
+.theme-toggle:hover{background:var(--surface-2);}
 
-  /* NAV */
-  nav {
-    border-bottom: 1px solid var(--rule);
-    padding: 1.2rem 4rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: sticky; top: 0;
-    background: var(--paper);
-    z-index: 100;
-  }
-  .nav-logo {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.85rem;
-    letter-spacing: 0.1em;
-    color: var(--muted);
-  }
-  .nav-links { display: flex; gap: 2rem; list-style: none; }
-  .nav-links a {
-    font-size: 0.82rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    text-decoration: none;
-    color: var(--ink);
-    transition: color 0.2s;
-  }
-  .nav-links a:hover { color: var(--accent); }
+/* TAB PANELS */
+.tab-panel{display:none;}
+.tab-panel.active{display:flex;}
 
-  /* HERO */
-  .hero {
-    padding: 7rem 4rem 5rem;
-    max-width: 900px;
-  }
-  .hero-eyebrow {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.78rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 1.2rem;
-  }
-  .hero h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(2.8rem, 5vw, 4.5rem);
-    line-height: 1.1;
-    font-weight: 700;
-    margin-bottom: 1.5rem;
-    letter-spacing: -0.01em;
-  }
-  .hero h1 span { color: var(--accent); }
-  .hero-sub {
-    font-size: 1.05rem;
-    color: var(--muted);
-    max-width: 580px;
-    margin-bottom: 2.5rem;
-    line-height: 1.9;
-  }
-  .hero-tags { display: flex; flex-wrap: wrap; gap: 0.6rem; }
-  .tag {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.72rem;
-    letter-spacing: 0.06em;
-    border: 1px solid var(--rule);
-    padding: 0.3rem 0.75rem;
-    border-radius: 2px;
-  }
+/* HOME LAYOUT */
+#panel-home{align-items:stretch;min-height:calc(100vh - 54px);}
+.sidebar{
+  width:190px;flex-shrink:0;background:var(--sidebar-bg);
+  border-right:1px solid var(--border);padding:2rem 0;
+  position:sticky;top:54px;height:calc(100vh - 54px);overflow-y:auto;
+  transition:background var(--transition);
+}
+.sidebar-nav{list-style:none;}
+.sidebar-nav li a{
+  display:block;padding:0.65rem 1.6rem;font-size:0.83rem;font-weight:400;
+  text-decoration:none;color:var(--ink-2);letter-spacing:0.03em;
+  border-left:3px solid transparent;transition:all var(--transition);
+}
+.sidebar-nav li a:hover{color:var(--ink);background:var(--surface-2);border-left-color:var(--border);}
+.sidebar-nav li a.active{color:var(--accent);border-left-color:var(--accent);background:var(--accent-pale);font-weight:500;}
+.sidebar-section-label{
+  font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.2em;
+  text-transform:uppercase;color:var(--ink-2);padding:1.5rem 1.6rem 0.5rem;opacity:0.6;
+}
+.home-content{flex:1;overflow-y:auto;padding:3.5rem 4rem;max-width:900px;}
+.sub-panel{display:none;}
+.sub-panel.active{display:block;}
 
-  /* DIVIDER */
-  .divider {
-    border: none;
-    border-top: 1px solid var(--rule);
-    margin: 0 4rem;
-  }
+/* ABOUT */
+.about-eyebrow{
+  font-family:'DM Mono',monospace;font-size:0.7rem;letter-spacing:0.22em;
+  text-transform:uppercase;color:var(--accent);margin-bottom:1rem;
+}
+.about-hero h1{
+  font-family:'Fraunces',serif;font-size:clamp(2.6rem,4.5vw,4rem);
+  font-weight:700;line-height:1.1;margin-bottom:1.2rem;
+}
+.about-hero h1 em{font-style:italic;font-weight:300;color:var(--accent);}
+.about-lead{font-size:1rem;color:var(--ink-2);max-width:600px;line-height:1.9;margin-bottom:2.5rem;}
+.tag-cluster{display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:3rem;}
+.tag{
+  font-family:'DM Mono',monospace;font-size:0.68rem;letter-spacing:0.05em;
+  padding:0.28rem 0.7rem;background:var(--tag-bg);border:1px solid var(--border);
+  border-radius:3px;color:var(--ink-2);transition:background var(--transition);
+}
 
-  /* SECTION */
-  section { padding: 5rem 4rem; }
-  .section-label {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.72rem;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 3rem;
-  }
+/* CTA STRIP */
+.cta-strip{
+  display:flex;align-items:center;gap:1rem;
+  background:var(--accent-pale);border:1px solid var(--accent);
+  border-radius:6px;padding:1.1rem 1.4rem;margin-bottom:3rem;flex-wrap:wrap;
+}
+.cta-strip p{font-size:0.88rem;color:var(--ink-2);flex:1;line-height:1.6;min-width:200px;}
+.cta-strip p strong{color:var(--ink);}
+.cta-btn{
+  font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:500;
+  letter-spacing:0.05em;background:var(--accent);color:#fff;
+  border:none;border-radius:4px;padding:0.55rem 1.1rem;
+  cursor:pointer;white-space:nowrap;transition:opacity 0.2s;
+  text-decoration:none;display:inline-block;
+}
+.cta-btn:hover{opacity:0.85;}
+.cta-btn.outline{background:none;border:1px solid var(--accent);color:var(--accent);}
+.cta-btn.outline:hover{background:var(--accent-pale);}
 
-  /* SAMPLES GRID */
-  .samples-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.5px;
-    border: 1px solid var(--rule);
-  }
-  .sample-card {
-    background: var(--card-bg);
-    padding: 2.5rem;
-    border: none;
-    transition: background 0.2s;
-    text-decoration: none;
-    color: inherit;
-    display: block;
-    position: relative;
-    overflow: hidden;
-  }
-  .sample-card::after {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 0;
-    width: 0; height: 2px;
-    background: var(--accent);
-    transition: width 0.3s ease;
-  }
-  .sample-card:hover { background: #fff; }
-  .sample-card:hover::after { width: 100%; }
-  .card-type {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.68rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 1rem;
-  }
-  .card-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.3rem;
-    font-weight: 700;
-    margin-bottom: 0.8rem;
-    line-height: 1.3;
-  }
-  .card-desc {
-    font-size: 0.88rem;
-    color: var(--muted);
-    line-height: 1.75;
-    margin-bottom: 1.5rem;
-  }
-  .card-meta {
-    display: flex; flex-wrap: wrap; gap: 0.4rem;
-  }
-  .meta-pill {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.65rem;
-    padding: 0.2rem 0.55rem;
-    background: var(--paper);
-    border: 1px solid var(--rule);
-    border-radius: 2px;
-    color: var(--muted);
-  }
-  .card-arrow {
-    position: absolute;
-    top: 2.5rem; right: 2.5rem;
-    font-size: 1.1rem;
-    color: var(--rule);
-    transition: color 0.2s, transform 0.2s;
-  }
-  .sample-card:hover .card-arrow {
-    color: var(--accent);
-    transform: translate(3px, -3px);
-  }
+.about-body{margin-bottom:2.5rem;}
+.about-body h2{font-family:'Fraunces',serif;font-size:1.5rem;font-weight:600;margin-bottom:1rem;color:var(--ink);}
+.about-body p{font-size:0.92rem;color:var(--ink-2);line-height:1.9;margin-bottom:0.9rem;}
+.about-body a{color:var(--accent);text-decoration:none;border-bottom:1px solid currentColor;}
 
-  /* ABOUT */
-  .about-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 5rem;
-    align-items: start;
-  }
-  .about-text h2 {
-    font-family: 'Playfair Display', serif;
-    font-size: 2rem;
-    margin-bottom: 1.2rem;
-    line-height: 1.2;
-  }
-  .about-text p {
-    font-size: 0.92rem;
-    color: var(--muted);
-    line-height: 1.9;
-    margin-bottom: 1rem;
-  }
-  .about-text a {
-    color: var(--accent);
-    text-decoration: none;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.8rem;
-    letter-spacing: 0.06em;
-    border-bottom: 1px solid var(--accent);
-    padding-bottom: 1px;
-  }
-  .exp-list { list-style: none; }
-  .exp-item {
-    padding: 1.5rem 0;
-    border-bottom: 1px solid var(--rule);
-  }
-  .exp-item:first-child { border-top: 1px solid var(--rule); }
-  .exp-company {
-    font-weight: 500;
-    font-size: 0.9rem;
-    margin-bottom: 0.2rem;
-  }
-  .exp-role {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.72rem;
-    color: var(--muted);
-    letter-spacing: 0.06em;
-  }
-  .exp-period {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.68rem;
-    color: var(--accent);
-    margin-top: 0.3rem;
-  }
+.exp-list{list-style:none;margin-top:0.5rem;}
+.exp-item{
+  padding:1.4rem 0;border-bottom:1px solid var(--border);
+  display:grid;grid-template-columns:1fr auto;gap:0.3rem 1rem;
+}
+.exp-item:first-child{border-top:1px solid var(--border);}
+.exp-company{font-weight:500;font-size:0.92rem;grid-column:1;}
+.exp-role{font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--ink-2);letter-spacing:0.04em;grid-column:1;}
+.exp-period{font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--accent);grid-column:2;grid-row:1/3;align-self:center;text-align:right;white-space:nowrap;}
+.contact-row{display:flex;gap:1.5rem;flex-wrap:wrap;margin-top:2.5rem;}
+.contact-row a{font-family:'DM Mono',monospace;font-size:0.78rem;color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent);padding-bottom:1px;}
+.section-rule{border:none;border-top:1px solid var(--border);margin:3rem 0;}
 
-  /* FOOTER */
-  footer {
-    border-top: 1px solid var(--rule);
-    padding: 2rem 4rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  footer p {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.72rem;
-    color: var(--muted);
-    letter-spacing: 0.06em;
-  }
-  footer a { color: var(--accent); text-decoration: none; }
+/* RESUME */
+.resume-wrap{max-width:800px;}
+.resume-header{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:1.5rem;padding-bottom:1.8rem;border-bottom:2px solid var(--accent);
+  margin-bottom:2.2rem;flex-wrap:wrap;
+}
+.resume-name{font-family:'Fraunces',serif;font-size:2.4rem;font-weight:700;line-height:1;margin-bottom:0.4rem;}
+.resume-title{font-size:0.92rem;color:var(--ink-2);letter-spacing:0.04em;}
+.resume-contact{font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--ink-2);line-height:2;text-align:right;}
+.resume-contact a{color:var(--accent);text-decoration:none;}
+.resume-section{margin-bottom:2.2rem;}
+.resume-section-title{
+  font-family:'DM Mono',monospace;font-size:0.68rem;letter-spacing:0.22em;
+  text-transform:uppercase;color:var(--accent);padding-bottom:0.5rem;
+  border-bottom:1px solid var(--border);margin-bottom:1.4rem;
+}
+.resume-summary{font-size:0.9rem;color:var(--ink-2);line-height:1.85;}
+.job{margin-bottom:1.8rem;}
+.job-header{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:0.3rem;margin-bottom:0.2rem;}
+.job-company{font-weight:500;font-size:0.95rem;}
+.job-period{font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--accent);white-space:nowrap;}
+.job-role{font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--ink-2);margin-bottom:0.6rem;letter-spacing:0.04em;}
+.job-meta-grid{display:grid;grid-template-columns:auto 1fr;gap:0.2rem 0.8rem;font-size:0.8rem;margin-bottom:0.8rem;}
+.job-meta-label{font-weight:500;color:var(--ink);white-space:nowrap;}
+.job-meta-val{color:var(--ink-2);}
+.job-award{
+  display:inline-block;font-family:'DM Mono',monospace;font-size:0.65rem;
+  background:var(--accent-pale);border:1px solid var(--accent);color:var(--accent);
+  padding:0.15rem 0.55rem;border-radius:20px;margin-bottom:0.7rem;
+}
+.job-bullets{list-style:none;padding-left:0;}
+.job-bullets li{font-size:0.85rem;color:var(--ink-2);line-height:1.75;padding:0.2rem 0 0.2rem 1.1rem;position:relative;}
+.job-bullets li::before{content:'»';position:absolute;left:0;color:var(--accent);font-size:0.75rem;top:0.35rem;}
+.job-bullets li strong{color:var(--ink);}
+.skills-grid{display:flex;flex-wrap:wrap;gap:0.5rem;}
+.skill-pill{font-family:'DM Mono',monospace;font-size:0.72rem;padding:0.3rem 0.8rem;background:var(--pill-bg);border:1px solid var(--border);border-radius:3px;color:var(--ink-2);}
+.edu-item{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:0.3rem;padding:0.7rem 0;border-bottom:1px solid var(--border);font-size:0.88rem;}
+.edu-degree{font-weight:500;}
+.edu-inst{color:var(--ink-2);font-size:0.82rem;}
+.resume-print-btn{
+  font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:500;
+  background:none;border:1px solid var(--border);color:var(--ink-2);border-radius:4px;
+  padding:0.45rem 1rem;cursor:pointer;display:flex;align-items:center;gap:0.4rem;
+  margin-bottom:2rem;transition:all var(--transition);
+}
+.resume-print-btn:hover{border-color:var(--accent);color:var(--accent);}
 
-  @media (max-width: 768px) {
-    nav, section, .hero { padding-left: 1.5rem; padding-right: 1.5rem; }
-    .divider { margin: 0 1.5rem; }
-    .about-grid { grid-template-columns: 1fr; gap: 3rem; }
-    footer { flex-direction: column; gap: 0.5rem; padding: 1.5rem; }
-  }
+/* WORK SAMPLES */
+#panel-samples{flex-direction:column;padding:3.5rem 4rem;}
+.samples-header{margin-bottom:3rem;}
+.samples-eyebrow{font-family:'DM Mono',monospace;font-size:0.7rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--accent);margin-bottom:0.8rem;}
+.samples-header h2{font-family:'Fraunces',serif;font-size:2rem;font-weight:600;line-height:1.2;margin-bottom:0.8rem;}
+.samples-header p{font-size:0.92rem;color:var(--ink-2);max-width:560px;line-height:1.8;}
+.samples-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem;}
+.sample-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:8px;
+  padding:2rem;text-decoration:none;color:inherit;display:block;
+  position:relative;overflow:hidden;box-shadow:var(--shadow);
+  transition:box-shadow var(--transition),transform var(--transition),border-color var(--transition);
+}
+.sample-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:var(--accent);transform:scaleX(0);transform-origin:left;
+  transition:transform 0.3s ease;
+}
+.sample-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-3px);border-color:var(--accent);}
+.sample-card:hover::before{transform:scaleX(1);}
+.card-type{font-family:'DM Mono',monospace;font-size:0.64rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent);margin-bottom:0.8rem;}
+.card-title{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:600;margin-bottom:0.7rem;line-height:1.3;}
+.card-desc{font-size:0.85rem;color:var(--ink-2);line-height:1.75;margin-bottom:1.4rem;}
+.card-pills{display:flex;flex-wrap:wrap;gap:0.4rem;}
+.card-pill{font-family:'DM Mono',monospace;font-size:0.62rem;padding:0.18rem 0.5rem;background:var(--pill-bg);border:1px solid var(--border);border-radius:2px;color:var(--ink-2);}
+.card-arrow{position:absolute;top:1.8rem;right:1.8rem;font-size:1rem;color:var(--border);transition:color var(--transition),transform var(--transition);}
+.sample-card:hover .card-arrow{color:var(--accent);transform:translate(3px,-3px);}
+
+/* FOOTER */
+.site-footer{
+  border-top:1px solid var(--border);padding:1.5rem 4rem;
+  display:flex;justify-content:space-between;align-items:center;
+  background:var(--sidebar-bg);transition:background var(--transition);
+}
+.site-footer p{font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--ink-2);letter-spacing:0.05em;}
+.site-footer a{color:var(--accent);text-decoration:none;}
+
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
+
+@media(max-width:768px){
+  .sidebar{display:none;}
+  .home-content{padding:2rem 1.5rem;}
+  #panel-samples{padding:2rem 1.5rem;}
+  .resume-header{flex-direction:column;}
+  .resume-contact{text-align:left;}
+  .site-footer{padding:1.2rem 1.5rem;flex-direction:column;gap:0.4rem;}
+  .topnav{padding:0 1rem;}
+  .job-meta-grid{grid-template-columns:1fr;}
+  .exp-item{grid-template-columns:1fr;} 
+  .exp-period{grid-column:1;grid-row:auto;text-align:left;}
+}
 </style>
 </head>
 <body>
 
-<nav>
-  <span class="nav-logo">VS | TW | Portfolio</span>
-  <ul class="nav-links">
-    <li><a href="#samples">Samples</a></li>
-    <li><a href="#about">About</a></li>
-    <li><a href="mailto:vinoaviation@gmail.com">Contact</a></li>
-  </ul>
+<!-- TOP NAV -->
+<nav class="topnav">
+  <span class="nav-brand">Vinoth | TW | Portfolio</span>
+  <div class="nav-right">
+    <button class="tab-btn active" onclick="switchTab('home',this)">Home</button>
+    <button class="tab-btn" onclick="switchTab('samples',this)">Work Samples</button>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn" title="Toggle theme">🌙</button>
+  </div>
 </nav>
 
-<div class="hero">
-  <p class="hero-eyebrow">Technical Writing Portfolio</p>
-  <h1>Vinoth<br/><span>Shanmugam</span></h1>
-  <p class="hero-sub">Senior Technical Writer with 15+ years of experience in delivering high-impact developer and compliance-driven documentation across software, fintech, and aerospace domains. Proven expertise in API documentation, information architecture, and Docs-as-Code ecosystems, with a strong foundation in structured authoring (DITA, S1000D) and regulatory standards.</p>
-  <div class="hero-tags">
-    <span class="tag">Docs-as-Code</span>
-    <span class="tag">API Documentation</span>
-    <span class="tag">User / Developer Guides</span>
-    <span class="tag">DITA / XML</span>
-    <span class="tag">Information Architecture</span>
-    <span class="tag">Markdown / MDX</span>
-    <span class="tag">Mermaid Diagrams</span>
-    <span class="tag">Mintlify / Docusaurus</span>
-    <span class="tag">Git / GitHub</span>
-    <span class="tag">STE</span>
-    <span class="tag">S1000D</span>
+<!-- HOME TAB -->
+<div id="panel-home" class="tab-panel active">
+  <aside class="sidebar">
+    <p class="sidebar-section-label">Portfolio</p>
+    <ul class="sidebar-nav">
+      <li><a href="#" onclick="switchSubPanel('about');return false;" class="active" id="link-about">About</a></li>
+      <li><a href="#" onclick="switchSubPanel('resume');return false;" id="link-resume">Resume</a></li>
+    </ul>
+  </aside>
+
+  <main class="home-content">
+
+    <!-- ABOUT -->
+    <section id="sub-about" class="sub-panel active">
+      <div class="about-hero">
+        <p class="about-eyebrow">Technical Writing Portfolio</p>
+        <h1>Vinoth<br/><em>Shanmugam</em></h1>
+        <p class="about-lead">Senior Technical Writer with 15+ years of experience delivering high-impact developer and compliance-driven documentation across software, fintech, and aerospace domains.</p>
+      </div>
+
+      <div class="tag-cluster">
+        <span class="tag">Docs-as-Code</span><span class="tag">API Documentation</span>
+        <span class="tag">User / Developer Guides</span><span class="tag">DITA / XML</span>
+        <span class="tag">Information Architecture</span><span class="tag">Markdown / MDX</span>
+        <span class="tag">Visualizations</span><span class="tag">Mintlify / Docusaurus</span>
+        <span class="tag">Git / GitHub</span><span class="tag">S1000D</span><span class="tag">STE</span>
+      </div>
+
+      <div class="cta-strip">
+        <p><strong>Integration guides, API references, and shared resource docs</strong> built to real-world documentation standards.</p>
+        <button class="cta-btn" onclick="switchTab('samples', document.querySelectorAll('.tab-btn')[1])">View Work Samples ↗</button>
+      </div>
+
+      <hr class="section-rule"/>
+
+      <div class="about-body">
+        <h2>Turning complexity into clarity</h2>
+        <p>I work at the intersection of engineering and communication — translating APIs, payment flows, and platform architectures into documentation that developers can actually use. My experience spans fintech, banking software, aerospace, and enterprise SaaS.</p>
+        <p>I advocate for structured authoring, rigorous information architecture, and a Docs-as-Code discipline that keeps documentation as close to the product as possible. I lead documentation modernisation initiatives, establish governance frameworks, and drive platform migrations to improve developer experience and content scalability.</p>
+        <p>I collaborate closely with product, engineering, and QA teams to translate complex systems into clear, accurate, and user-focused documentation.</p>
+      </div>
+
+      <hr class="section-rule"/>
+
+      <div class="about-body">
+        <h2>Experience</h2>
+      </div>
+      <ul class="exp-list">
+        <li class="exp-item">
+          <span class="exp-company">PayPal</span>
+          <span class="exp-period">Jan 2025 – Apr 2026</span>
+          <span class="exp-role">Senior Technical Writer · Chennai</span>
+        </li>
+        <li class="exp-item">
+          <span class="exp-company">FIS Global Solutions</span>
+          <span class="exp-period">Jun 2018 – Jan 2025</span>
+          <span class="exp-role">Technical Writer Specialist · Chennai</span>
+        </li>
+        <li class="exp-item">
+          <span class="exp-company">Intellect Design Arena</span>
+          <span class="exp-period">Aug 2016 – Jun 2018</span>
+          <span class="exp-role">Team Lead, Technical Writing · Chennai</span>
+        </li>
+        <li class="exp-item">
+          <span class="exp-company">LionBridge Technologies (Client: Rolls Royce)</span>
+          <span class="exp-period">Jun 2010 – Jul 2016</span>
+          <span class="exp-role">Lead Author · Chennai</span>
+        </li>
+      </ul>
+
+      <div style="margin-top:3rem;">
+        <div class="cta-strip">
+          <p>Want full detail on responsibilities, tools, and standards for each role?</p>
+          <button class="cta-btn outline" onclick="switchSubPanel('resume')">View Full Resume →</button>
+        </div>
+      </div>
+
+      <div class="contact-row">
+        <a href="mailto:vinoaviation@gmail.com">vinoaviation@gmail.com</a>
+        <a href="https://www.linkedin.com/in/vinoth-s-10779a17/" target="_blank">LinkedIn ↗</a>
+        <a href="tel:+919894761516">+91 98947 61516</a>
+      </div>
+    </section>
+
+    <!-- RESUME -->
+    <section id="sub-resume" class="sub-panel">
+      <div class="resume-wrap">
+        <button class="resume-print-btn" onclick="window.print()"><span>⎙</span> Print / Save as PDF</button>
+
+        <div class="resume-header">
+          <div>
+            <div class="resume-name">Vinoth Shanmugam</div>
+            <div class="resume-title">Senior Technical Writer</div>
+          </div>
+          <div class="resume-contact">
+            +91 98947 61516<br/>
+            <a href="mailto:vinoaviation@gmail.com">vinoaviation@gmail.com</a><br/>
+            <a href="https://www.linkedin.com/in/vinoth-s-10779a17/" target="_blank">LinkedIn Profile</a><br/>
+            Chennai, India
+          </div>
+        </div>
+
+        <div class="resume-section">
+          <div class="resume-section-title">Summary</div>
+          <p class="resume-summary">Senior Technical Writer with comprehensive experience in user and developer documentation across multiple products. Strong collaborator with product and engineering teams, delivering clear, scalable, and user-focused documentation for diverse audiences. Demonstrated expertise in information architecture, Docs-as-Code, documentation standards, and AI-assisted workflows to improve quality, consistency, and efficiency.</p>
+        </div>
+
+        <div class="resume-section">
+          <div class="resume-section-title">Experience</div>
+
+          <div class="job">
+            <div class="job-header">
+              <span class="job-company">PayPal</span>
+              <span class="job-period">January 2025 – April 2026</span>
+            </div>
+            <div class="job-role">Senior Technical Writer · Chennai</div>
+            <div class="job-meta-grid">
+              <span class="job-meta-label">Products</span><span class="job-meta-val">Payments, Subscriptions, and Disputes</span>
+              <span class="job-meta-label">Docs handled</span><span class="job-meta-val">Developer integration guides and API documentation</span>
+              <span class="job-meta-label">Tools</span><span class="job-meta-val">VS Code, GitHub, Mintlify, Docusaurus, ECM, Figma (basic), Confluence, Jira, MS Office</span>
+              <span class="job-meta-label">Standards</span><span class="job-meta-val">DDLC, MSTP, DITA, PayPal Style Guide</span>
+              <span class="job-meta-label">AI tools</span><span class="job-meta-val">Claude, ChatGPT, Mermaid</span>
+            </div>
+            <ul class="job-bullets">
+              <li>Analyse demand requests, Jira epics, PRDs, API specifications, and related inputs from product and engineering teams.</li>
+              <li>Collaborate with stakeholders to understand product behaviour, integration flows, and technical constraints.</li>
+              <li>Develop <strong>developer-focused documentation</strong> for merchants and partners with emphasis on accuracy, usability, and IA. Validate sandbox workflows, perform API testing, follow a <strong>Docs-as-Code</strong> approach using Markdown (.mdx), Git, and Mintlify. Create workflows and sequence diagrams using Mermaid and Figma.</li>
+              <li>Handle Run-the-Business (RTB) tickets and migration initiatives — revamping and migrating legacy documentation to docs.paypal.ai.</li>
+              <li><strong>Leverage AI-assisted workflows</strong> for concept clarification, edge-case identification, IA design, and editorial reviews.</li>
+              <li>Conduct pod-level peer reviews and act as quality gate for deliverables.</li>
+              <li>Define and maintain guidelines to improve content quality and consistency across doc sets.</li>
+            </ul>
+          </div>
+
+          <div class="job">
+            <div class="job-header">
+              <span class="job-company">FIS Global Solutions Pvt Ltd</span>
+              <span class="job-period">June 2018 – January 2025</span>
+            </div>
+            <div class="job-role">Technical Writer Specialist · Chennai <br/><strong>Promotion</strong>: Senior TW → TW Specialist</div>
+            <span class="job-award">🏆 Above &amp; Beyond · Recognition for Team Effort · Win as One Team</span>
+            <div class="job-meta-grid">
+              <span class="job-meta-label">Product</span><span class="job-meta-val">IST (Information Switching Technology)</span>
+              <span class="job-meta-label">Docs handled</span><span class="job-meta-val">User guides, release notes, cloud deployment guides, installation guides, product docs, one-sheets, reference guides, API docs, database reference guides, presentations</span>
+              <span class="job-meta-label">Tools</span><span class="job-meta-val">Oxygen XML Editor, Astoria, MS Office, MS Visio, Adobe Acrobat Pro, Notepad++, Swagger, Oracle SQL Developer, SnagIt, Sitecore</span>
+              <span class="job-meta-label">Standards</span><span class="job-meta-val">DDLC, MSTP, DITA, FIS Style Guide</span>
+            </div>
+            <ul class="job-bullets">
+              <li>Collaborated with cross-functional teams and SMEs to document complex systems for multiple audiences without ambiguity.</li>
+              <li>Managed end-to-end documentation for Switch, Clearing, and MAS technologies handling card payments, transaction processing, settlement, and merchant accounting.</li>
+              <li>Created and maintained <strong>compliance-driven documentation</strong> aligned with Network Compliance Mandates, PCI SSF directives, and audits.</li>
+              <li>Produced Data Flow Diagrams, process flow diagrams, system architecture, and entity relationship diagrams using MS Visio.</li>
+              <li>Identified documentation gaps, improved content quality, and ensured adherence to organisational standards.</li>
+              <li>Established and maintained the Client Portal site, Sitecore repository, and documentation process.</li>
+            </ul>
+          </div>
+
+          <div class="job">
+            <div class="job-header">
+              <span class="job-company">Intellect Design Arena Ltd</span>
+              <span class="job-period">August 2016 – June 2018</span>
+            </div>
+            <div class="job-role">Team Lead, Technical Writing · Chennai</div>
+            <span class="job-award">🏆 CMMi Level 5 – Key Contributor Award</span>
+            <div class="job-meta-grid">
+              <span class="job-meta-label">Product</span><span class="job-meta-val">Canvas Technology</span>
+              <span class="job-meta-label">Docs handled</span><span class="job-meta-val">Developer guides, deployment guides, reference guides, release notes, presentations, and videos</span>
+              <span class="job-meta-label">Tools</span><span class="job-meta-val">MS Office, Active Presenter, OpenOffice, Notepad++, Eclipse, Oracle SQL Developer</span>
+              <span class="job-meta-label">Standards</span><span class="job-meta-val">DDLC, MSTP, internal style guides</span>
+            </div>
+            <ul class="job-bullets">
+              <li>Created, revised, and managed developer guides, deployment guides, reference guides, release notes, and presentations for new features and enhancements.</li>
+              <li>Produced deployment and instructional videos across different application servers.</li>
+              <li>Contributed to UI/UX and business process testing from an end-user and documentation perspective.</li>
+              <li>Conducted introductory sessions about the product for internal teams.</li>
+            </ul>
+          </div>
+
+          <div class="job">
+            <div class="job-header">
+              <span class="job-company">LionBridge Technologies Pvt Ltd &nbsp;<span style="font-weight:300;font-size:0.85em;">· Client: Rolls Royce, UK</span></span>
+              <span class="job-period">June 2010 – July 2016</span>
+            </div>
+            <div class="job-role">Lead Author · Chennai &nbsp;·&nbsp; Promoted: TW → Senior TW → Lead Author &nbsp;·&nbsp; Onsite: Derby, UK (Mar–Aug 2012)</div>
+            <span class="job-award">🏆 Star Award · Certificate of Excellence from Rolls Royce</span>
+            <div class="job-meta-grid">
+              <span class="job-meta-label">Manuals</span><span class="job-meta-val">AMM, EM, CIR, Tooling Jobs, TASKs / Data Modules (DMs)</span>
+              <span class="job-meta-label">Engines</span><span class="job-meta-val">BR700NG, TP400, Trent XWB/500/700/800/900/1000, RB211 series (524 &amp; 535)</span>
+              <span class="job-meta-label">Tools</span><span class="job-meta-val">Epic Editor 5.4, UltraCSDB, PS 2000, Team Center, MS Office, Adobe Acrobat Pro, PDF X Viewer</span>
+              <span class="job-meta-label">Standards</span><span class="job-meta-val">S1000D, Simplified Technical English (STE), ATA100, iSpec 2200</span>
+            </div>
+            <ul class="job-bullets">
+              <li>Performed Internal Quality Check (IQC) and delivered manuals within scheduled timelines.</li>
+              <li>Managed team workload and tracked work packs throughout their lifecycle.</li>
+              <li>Created and revised Maintenance Manual TASKs and Data Modules (DMs).</li>
+              <li>Incorporated Service Bulletins (SBs), tooling jobs, and Request for Manual Revisions (RMRs) across various manuals.</li>
+              <li>Trained new recruits and ensured seamless transition into the team.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="resume-section">
+          <div class="resume-section-title">Skills</div>
+          <div class="skills-grid">
+            <span class="skill-pill">Technical Writing</span><span class="skill-pill">DITA</span>
+            <span class="skill-pill">XML / Markdown</span><span class="skill-pill">Structured Authoring</span>
+            <span class="skill-pill">CMS Management</span><span class="skill-pill">Git</span>
+            <span class="skill-pill">Information Architecture</span><span class="skill-pill">Document Quality</span>
+            <span class="skill-pill">Project Management</span><span class="skill-pill">User Experience (UX)</span>
+            <span class="skill-pill">User Advocacy</span><span class="skill-pill">S1000D</span>
+            <span class="skill-pill">STE</span><span class="skill-pill">API Documentation</span>
+            <span class="skill-pill">Docs-as-Code</span><span class="skill-pill">Mermaid Diagrams</span>
+            <span class="skill-pill">AI-assisted workflows</span>
+          </div>
+        </div>
+
+        <div class="resume-section">
+          <div class="resume-section-title">Academic Credentials</div>
+          <div class="edu-item">
+            <span class="edu-degree">Bachelor of Business Administration</span>
+            <span class="edu-inst">Annamalai University</span>
+          </div>
+          <div class="edu-item">
+            <span class="edu-degree">Aircraft Maintenance Engineering</span>
+            <span class="edu-inst">DGCA</span>
+          </div>
+        </div>
+
+        <div class="cta-strip" style="margin-top:2rem;">
+          <p>Ready to explore the documentation samples that demonstrate these skills in practice?</p>
+          <button class="cta-btn" onclick="switchTab('samples', document.querySelectorAll('.tab-btn')[1])">View Work Samples ↗</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- WORK SAMPLES TAB -->
+<div id="panel-samples" class="tab-panel">
+  <div style="width:100%;padding:3.5rem 4rem;">
+    <div class="samples-header">
+      <p class="samples-eyebrow">Writing Samples</p>
+      <h2>Documentation Portfolio</h2>
+      <p>Real-world documentation artefacts built to professional standards — integration guides, API references, and shared resource docs.</p>
+    </div>
+    <div class="samples-grid">
+      <a class="sample-card" href="integration-guide.md">
+        <span class="card-arrow">↗</span>
+        <p class="card-type">Integration Guide</p>
+        <h3 class="card-title">Payment Capture Integration Guide</h3>
+        <p class="card-desc">End-to-end developer guide covering authorisation, capture, and settlement flows. Includes a Mermaid sequence diagram and sandbox validation steps.</p>
+        <div class="card-pills">
+          <span class="card-pill">Mermaid</span><span class="card-pill">REST API</span>
+          <span class="card-pill">Markdown</span><span class="card-pill">Sandbox Testing</span>
+        </div>
+      </a>
+      <a class="sample-card" href="api-reference.md">
+        <span class="card-arrow">↗</span>
+        <p class="card-type">API Reference</p>
+        <h3 class="card-title">Payments API Reference</h3>
+        <p class="card-desc">Structured API reference with endpoint definitions, request/response schemas, HTTP status codes, and annotated cURL examples.</p>
+        <div class="card-pills">
+          <span class="card-pill">OpenAPI style</span><span class="card-pill">JSON Schemas</span>
+          <span class="card-pill">Error Codes</span><span class="card-pill">cURL examples</span>
+        </div>
+      </a>
+      <a class="sample-card" href="common-resources.md">
+        <span class="card-arrow">↗</span>
+        <p class="card-type">Common Resources</p>
+        <h3 class="card-title">Common API Resources</h3>
+        <p class="card-desc">Shared reference covering authentication, OAuth 2.0 scopes, rate limiting, idempotency, versioning, and a full glossary — cross-linked from all guides.</p>
+        <div class="card-pills">
+          <span class="card-pill">Auth / OAuth 2.0</span><span class="card-pill">Rate Limiting</span>
+          <span class="card-pill">Idempotency</span><span class="card-pill">Versioning</span>
+        </div>
+      </a>
+    </div>
   </div>
 </div>
 
-<hr class="divider"/>
-
-<section id="about">
-  <p class="section-label">About</p>
-  <div class="about-grid">
-    <div class="about-text">
-      <h2>15+ years in turning complexity into clarity</h2>
-      <p>I work at the intersection of engineering and communication that includes, but not limited to translating APIs, payment flows, and platform architectures into documentation that developers can actually use. My experience spans across fintech, banking software, aerospace, and enterprise SaaS domains.</p>
-      <p>I advocate for structured authoring, information architecture, and a Docs-as-Code discipline that keeps documentation as close to the product as possible.</p>
-      <p>My experience in leading documentation modernization initiatives, establishing governance frameworks, and driving platform migrations aims to improve developer experience and content scalability. I'm adept at collaborating with product, engineering, and QA teams to translate complex systems into clear, accurate, and user-focused documentation.</p>
-      <p style="margin-top:1.5rem;">
-        <a href="mailto:vinoaviation@gmail.com">vinoaviation@gmail.com</a>
-        &nbsp;&nbsp;·&nbsp;&nbsp;
-        <a href="https://www.linkedin.com/in/vinoth-s-10779a17/">LinkedIn ↗</a>
-      </p>
-    </div>
-    <div>
-      <ul class="exp-list">
-        <li class="exp-item">
-          <p class="exp-company">PayPal</p>
-          <p class="exp-role">Senior Technical Writer</p>
-          <p class="exp-period">Jan 2025 - Present</p>
-        </li>
-        <li class="exp-item">
-          <p class="exp-company">FIS Global Solutions</p>
-          <p class="exp-role">Technical Writer Specialist</p>
-          <p class="exp-period">Jun 2018 - Jan 2025</p>
-        </li>
-        <li class="exp-item">
-          <p class="exp-company">Intellect Design Arena</p>
-          <p class="exp-role">Team Lead, Technical Writing</p>
-          <p class="exp-period">Aug 2016 - Jun 2018</p>
-        </li>
-        <li class="exp-item">
-          <p class="exp-company">LionBridge Technologies (Client: Rolls Royce)</p>
-          <p class="exp-role">Lead Author</p>
-          <p class="exp-period">Jun 2010 - Jul 2016</p>
-        </li>
-      </ul>
-    </div>
-  </div>
-</section>
-
-<hr class="divider"/>
-
-<section id="samples">
-  <p class="section-label">Writing Samples</p>
-  <div class="samples-grid">
-
-    <a class="sample-card" href="integration-guide.md">
-      <span class="card-arrow">↗</span>
-      <p class="card-type">Integration Guide</p>
-      <h2 class="card-title">Payment Capture Integration Guide</h2>
-      <p class="card-desc">End-to-end developer guide covering authorization, capture, and settlement flows. Includes Mermaid sequence diagrams and sandbox validation steps.</p>
-      <div class="card-meta">
-        <span class="meta-pill">Mermaid</span>
-        <span class="meta-pill">REST API</span>
-        <span class="meta-pill">Markdown</span>
-        <span class="meta-pill">Sandbox Testing</span>
-      </div>
-    </a>
-
-    <a class="sample-card" href="api-reference.md">
-      <span class="card-arrow">↗</span>
-      <p class="card-type">API Reference</p>
-      <h2 class="card-title">Payments API Reference</h2>
-      <p class="card-desc">Structured API reference with endpoint definitions, request/response schemas, HTTP status codes, and annotated cURL examples.</p>
-      <div class="card-meta">
-        <span class="meta-pill">OpenAPI style</span>
-        <span class="meta-pill">JSON Schemas</span>
-        <span class="meta-pill">Error Codes</span>
-        <span class="meta-pill">cURL examples</span>
-      </div>
-    </a>
-
-    <a class="sample-card" href="common-resources.md">
-      <span class="card-arrow">↗</span>
-      <p class="card-type">Common Resources</p>
-      <h2 class="card-title">Common API Resources</h2>
-      <p class="card-desc">Shared reference covering authentication, OAuth 2.0 scopes, rate limiting, idempotency, versioning, and a glossary — cross-linked from all guides.</p>
-      <div class="card-meta">
-        <span class="meta-pill">Auth / OAuth 2.0</span>
-        <span class="meta-pill">Rate Limiting</span>
-        <span class="meta-pill">Idempotency</span>
-        <span class="meta-pill">Versioning</span>
-      </div>
-    </a>
-
-  </div>
-</section>
-
-<footer>
+<!-- FOOTER -->
+<footer class="site-footer">
   <p>© 2026 Vinoth Shanmugam</p>
   <p>+91 98947 61516 · <a href="mailto:vinoaviation@gmail.com">vinoaviation@gmail.com</a></p>
 </footer>
 
+<script>
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  // activate the matching button
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    const label = b.textContent.trim().toLowerCase();
+    if ((name === 'home' && label === 'home') || (name === 'samples' && label === 'work samples')) {
+      b.classList.add('active');
+    }
+  });
+}
+
+function switchSubPanel(name) {
+  document.querySelectorAll('.sub-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+  document.getElementById('sub-' + name).classList.add('active');
+  const link = document.getElementById('link-' + name);
+  if (link) link.classList.add('active');
+  const mc = document.querySelector('.home-content');
+  if (mc) mc.scrollTop = 0;
+}
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('themeBtn').textContent = isDark ? '🌙' : '☀️';
+  try { localStorage.setItem('vs-theme', isDark ? 'light' : 'dark'); } catch(e){}
+}
+
+(function() {
+  try {
+    const saved = localStorage.getItem('vs-theme');
+    if (saved) {
+      document.documentElement.setAttribute('data-theme', saved);
+      document.getElementById('themeBtn').textContent = saved === 'dark' ? '☀️' : '🌙';
+    }
+  } catch(e) {}
+})();
+</script>
 </body>
 </html>
