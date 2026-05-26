@@ -1,0 +1,27 @@
+{
+  "name": "Vinoth Shanmugam | Writing Samples",
+  "logo": {
+    "light": "/logo-light.svg",
+    "dark": "/logo-dark.svg"
+  },
+  "favicon": "/favicon.svg",
+  "colors": {
+    "primary": "#2d5f4f",
+    "light": "#4d9e82",
+    "dark": "#2d5f4f"
+  },
+  "topbarLinks": [
+    { "name": "Portfolio", "url": "https://vinongit.github.io/portfolio/" }
+  ],
+  "navigation": [
+    {
+      "group": "Writing Samples",
+      "pages": ["integration-guide", "api-reference", "common-resources"]
+    }
+  ],
+  "footer": {
+    "socials": {
+      "linkedin": "https://www.linkedin.com/in/vinoth-s-10779a17/"
+    }
+  }
+}
