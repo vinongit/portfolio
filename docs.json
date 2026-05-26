@@ -10,7 +10,6 @@
   "topbarLinks": [
     { "name": "Portfolio", "url": "https://vinongit.github.io/portfolio/" }
   ],
-  "openapi": "openapi.yaml",
   "navigation": {
     "tabs": [
       {
@@ -21,17 +20,8 @@
         ]
       },
       {
-        "tab": "API Reference",
-        "pages": [
-          "openapi/createOrder",
-          "openapi/getOrder",
-          "openapi/authorizeOrder",
-          "openapi/captureOrder",
-          "openapi/captureAuthorization",
-          "openapi/voidAuthorization",
-          "openapi/getCapture",
-          "openapi/refundCapture"
-        ]
+      "tab": "API Reference",
+      "openapi": "openapi.yaml"
       }
     ]
   },
