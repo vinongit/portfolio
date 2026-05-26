@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Vinoth Shanmugam | Technical Writing Portfolio</title>
+<meta name="description" content="Senior Technical Writer with 15+ years of experience in API documentation, developer guides, and Docs-as-Code. Portfolio of integration guides, API references, and shared resource docs."/>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,700;1,300&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 /* ─── TOKENS ─────────────────────────────────────────────── */
@@ -183,8 +184,8 @@ body{
 .job-bullets li::before{content:'»';position:absolute;left:0;color:var(--accent);font-size:0.75rem;top:0.35rem;}
 .job-bullets li strong{color:var(--ink);}
 .skills-grid{display:flex;flex-wrap:wrap;gap:0.5rem;}
-.skill-pill{font-family:'DM Mono',monospace;font-size:0.72rem;padding:0.3rem 0.8rem;background:var(--pill-bg);border:1px solid var(--border);border-radius:3px;color:var(--ink-2);}
-.edu-item{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:0.3rem;padding:0.7rem 0;border-bottom:1px solid var(--border);font-size:0.88rem;}
+.skill-pill{font-family:'DM Mono',monospace;font-size:0.63rem;padding:0.22rem 0.6rem;background:var(--pill-bg);border:1px solid var(--border);border-radius:3px;color:var(--ink-2);}
+.edu-item{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:0.3rem;padding:0.7rem 0;border-bottom:0.5px solid var(--border);font-size:0.88rem;}
 .edu-degree{font-weight:500;}
 .edu-inst{color:var(--ink-2);font-size:0.82rem;}
 .resume-print-btn{
@@ -196,7 +197,8 @@ body{
 .resume-print-btn:hover{border-color:var(--accent);color:var(--accent);}
 
 /* WORK SAMPLES */
-#panel-samples{flex-direction:column;padding:3.5rem 4rem;justify-content:space-evenly;}
+#panel-samples{flex-direction:column;justify-content:space-evenly;}
+.samples-inner{padding:3.5rem 4rem;width:100%;}
 .samples-header{margin-bottom:3rem;}
 .samples-eyebrow{font-family:'DM Mono',monospace;font-size:0.7rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--accent);margin-bottom:0.8rem;}
 .samples-header h2{font-family:'Fraunces',serif;font-size:2rem;font-weight:600;line-height:1.2;margin-bottom:0.8rem;}
@@ -239,7 +241,7 @@ body{
 @media(max-width:768px){
   .sidebar{display:none;}
   .home-content{padding:2rem 1.5rem;}
-  #panel-samples{padding:2rem 1.5rem;}
+  .samples-inner{padding:2rem 1.5rem;}
   .resume-header{flex-direction:column;}
   .resume-contact{text-align:left;}
   .site-footer{padding:1.2rem 1.5rem;flex-direction:column;gap:0.4rem;}
@@ -247,6 +249,36 @@ body{
   .job-meta-grid{grid-template-columns:1fr;}
   .exp-item{grid-template-columns:1fr;} 
   .exp-period{grid-column:1;grid-row:auto;text-align:left;}
+}
+@media print{
+  .topnav,nav,.sidebar,.site-footer,.cta-strip,.resume-print-btn{display:none!important;}
+  #panel-home{display:block!important;}
+  #sub-resume{display:block!important;}
+  #sub-about,#panel-samples{display:none!important;}
+  .home-content{padding:1rem 2rem;max-width:100%;}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+
+  /* Light theme print — use near-white bg */
+  [data-theme="light"] body{background:#fafaf8!important;}
+  [data-theme="light"] p,[data-theme="light"] li,
+  [data-theme="light"] .job-meta-val,[data-theme="light"] .resume-summary,
+  [data-theme="light"] .resume-contact,[data-theme="light"] .resume-title,
+  [data-theme="light"] .job-role,[data-theme="light"] .job-meta-label,
+  [data-theme="light"] .job-bullets li,[data-theme="light"] .edu-inst{color:#1a1714!important;}
+
+  /* Dark theme print — override accent-as-ink back to readable dark-on-dark */
+  [data-theme="dark"] body{background:#07080f!important;}
+  [data-theme="dark"] p,[data-theme="dark"] li,
+  [data-theme="dark"] .job-meta-val,[data-theme="dark"] .resume-summary,
+  [data-theme="dark"] .resume-contact,[data-theme="dark"] .resume-title,
+  [data-theme="dark"] .job-role,[data-theme="dark"] .job-meta-label,
+  [data-theme="dark"] .job-bullets li,[data-theme="dark"] .edu-inst,
+  [data-theme="dark"] .resume-name{color:#f0ece3!important;}
+  [data-theme="dark"] .resume-section-title,[data-theme="dark"] .job-period,
+  [data-theme="dark"] .job-award{color:#4d9e82!important;}
+
+  .resume-header{border-bottom:2px solid var(--accent)!important;}
+  a{color:var(--accent)!important;text-decoration:none;}
 }
 </style>
 </head>
@@ -297,7 +329,7 @@ body{
 
       <div class="cta-strip">
         <p><strong>Integration guides, API references, and shared resource docs</strong> built to real-world documentation standards.</p>
-        <button class="cta-btn" onclick="switchTab('samples', document.querySelectorAll('.tab-btn')[1])">View Work Samples ↗</button>
+        <button class="cta-btn" onclick="switchTab('samples')">View Work Samples ↗</button>
       </div>
 
       <hr class="section-rule"/>
@@ -378,15 +410,25 @@ body{
         <div class="resume-section">
           <div class="resume-section-title">Skills</div>
           <div class="skills-grid">
-            <span class="skill-pill">Technical Writing</span><span class="skill-pill">DITA</span>
-            <span class="skill-pill">XML / Markdown</span><span class="skill-pill">Structured Authoring</span>
-            <span class="skill-pill">CMS Management</span><span class="skill-pill">Git / GitHub</span>
-            <span class="skill-pill">Information Architecture</span><span class="skill-pill">Docs-as-Code</span>
-            <span class="skill-pill">Document Quality</span><span class="skill-pill">Artificial Intelligence</span>
-            <span class="skill-pill">Project Management</span><span class="skill-pill">User Experience (UX)</span>
-            <span class="skill-pill">User Advocacy</span><span class="skill-pill">S1000D</span>
-            <span class="skill-pill">STE</span><span class="skill-pill">API Documentation</span>
-            <span class="skill-pill">Mermaid Diagrams</span>
+            <span class="skill-pill">Technical Writing</span>
+            <span class="skill-pill">Structured Authoring</span>
+            <span class="skill-pill">Information Architecture</span>
+            <span class="skill-pill">API Documentation</span>
+            <span class="skill-pill">DITA</span>
+            <span class="skill-pill">XML</span>
+            <span class="skill-pill">Docs-as-Code</span>
+            <span class="skill-pill">Markdown</span>
+            <span class="skill-pill">Git / GitHub</span>
+            <span class="skill-pill">CMS Management</span>
+            <span class="skill-pill">Mintlify / Docusaurus</span>
+            <span class="skill-pill">Artificial Intelligence</span>
+            <span class="skill-pill">S1000D</span>
+            <span class="skill-pill">STE</span>
+            <span class="skill-pill">Document Quality</span>
+            <span class="skill-pill">Project Management</span>
+            <span class="skill-pill">User Experience (UX)</span>
+            <span class="skill-pill">User Advocacy</span>
+            <span class="skill-pill">Visualizations</span>
             <span class="skill-pill">AI-assisted workflows</span>
           </div>
         </div>
@@ -502,7 +544,7 @@ body{
 
         <div class="cta-strip" style="margin-top:2rem;">
           <p>Ready to explore the documentation samples that demonstrate these skills in practice?</p>
-          <button class="cta-btn" onclick="switchTab('samples', document.querySelectorAll('.tab-btn')[1])">View Work Samples ↗</button>
+          <button class="cta-btn" onclick="switchTab('samples')">View Work Samples ↗</button>
         </div>
       </div>
     </section>
@@ -512,7 +554,7 @@ body{
 
 <!-- WORK SAMPLES TAB -->
 <div id="panel-samples" class="tab-panel">
-  <div style="width:100%;padding:3.5rem 4rem;">
+  <div class="samples-inner">
     <div class="samples-header">
       <p class="samples-eyebrow">Writing Samples</p>
       <h2>Documentation Portfolio</h2>
