@@ -1,11 +1,7 @@
 {
   "name": "Vinoth Shanmugam | Writing Samples",
-  "logo": {
-    "light": "/logo-light.svg",
-    "dark": "/logo-dark.svg"
-  },
+  "logo": "/logo.svg",
   "theme": "mint",
-  "favicon": "/favicon.svg",
   "colors": {
     "primary": "#2d5f4f",
     "light": "#4d9e82",
@@ -14,13 +10,30 @@
   "topbarLinks": [
     { "name": "Portfolio", "url": "https://vinongit.github.io/portfolio/" }
   ],
+  "openapi": "openapi.yaml",
   "navigation": {
-  "tabs": [
-    {
-      "tab": "Writing Samples",
-      "pages": ["integration-guide", "api-reference", "common-resources"]
-    }
-  ]
+    "tabs": [
+      {
+        "tab": "Writing Samples",
+        "pages": [
+          "integration-guide",
+          "common-resources"
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "pages": [
+          "openapi/createOrder",
+          "openapi/getOrder",
+          "openapi/authorizeOrder",
+          "openapi/captureOrder",
+          "openapi/captureAuthorization",
+          "openapi/voidAuthorization",
+          "openapi/getCapture",
+          "openapi/refundCapture"
+        ]
+      }
+    ]
   },
   "footer": {
     "socials": {
