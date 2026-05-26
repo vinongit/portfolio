@@ -161,7 +161,7 @@ curl -X POST https://api-m.sandbox.example.com/v2/checkout/orders \
 </CodeGroup>
 
 <Note>`Example-Request-Id` is an idempotency key. You can reuse it to safely retry the same call without creating duplicate orders. For more information on idempotency, see the [Idempotency](./common-resources#idempotency) section in Common Resources.</Note>
-<Note>For more information about the API parameters, see the [API reference](./api-reference).</Note>
+<Note>For more information about the API parameters, see the [API reference](./api-reference/create-an-order).</Note>
 
 ---
 
@@ -221,7 +221,7 @@ curl -X POST https://api-m.sandbox.example.com/v2/checkout/orders/5O190127TN3647
 
 Record the `authorization_id` (`3C679366HH908993T`). It is required for the capture step. Note the `expiration_time` — authorizations expire after 29 days if not captured.
 
-<Note>For more information about the API parameters, see the [API reference](./api-reference).</Note>
+<Note>For more information about the API parameters, see the [API reference](./api-reference/authorize-payment-for-an-order).</Note>
 
 ---
 
@@ -273,7 +273,7 @@ curl -X POST https://api-m.sandbox.example.com/v2/payments/authorizations/3C6793
 
 A `status` of `COMPLETED` confirms the funds have been captured.
 
-<Note>For more information about the API parameters, see the [API reference](./api-reference).</Note>
+<Note>For more information about the API parameters, see the [API reference](./api-reference/capture-payment-for-an-order).</Note>
 
 ---
 
@@ -289,9 +289,38 @@ curl -X POST https://api-m.sandbox.example.com/v2/payments/authorizations/3C6793
 
 A `204` response with no body indicates the authorization was voided successfully.
 
-<Note>For more information about the API parameters, see the [API reference](./api-reference).</Note>
+<Note>For more information about the API parameters, see the [API reference](./api-reference/void-an-authorization).</Note>
 
 ---
+
+## Retrieve capture details
+
+You can retrieve details of a capture using the capture ID returned in the capture response.
+
+<CodeGroup>
+
+```bash Sample request
+curl -X GET https://api-m.sandbox.example.com/v2/payments/captures/2GG279541U471931P \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer ACCESS-TOKEN'
+```
+
+```json Sample response
+{
+  "id": "2GG279541U471931P",
+  "status": "COMPLETED",
+  "amount": { "currency_code": "USD", "value": "100.00" },
+  "final_capture": true,
+  "seller_protection": { "status": "ELIGIBLE" },
+  "create_time": "2025-03-06T10:45:00Z",
+  "update_time": "2025-03-06T10:45:03Z"
+}
+```
+
+</CodeGroup>
+
+<Note>For more information about the API parameters, see the [API reference](./api-reference/get-capture-details).</Note>
+
 
 ## Error handling
 

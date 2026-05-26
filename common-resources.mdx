@@ -20,11 +20,11 @@ The integration guide and API reference in this portfolio link to this page as t
 
 ---
 
-# Authentication
+## Authentication
 
 The Payments API uses **OAuth 2.0 Client Credentials** grant type. You exchange your `client_id` and `client_secret` for a short-lived Bearer token.
 
-## Token endpoint
+### Token endpoint
 
 | Environment | URL |
 |---|---|
@@ -55,7 +55,7 @@ curl -X POST https://api-m.sandbox.example.com/v1/oauth2/token \
 </Codegroup>
 
 
-## Using the token
+### Using the token
 
 Include the token in all API requests using the `Authorization` header:
 
@@ -63,7 +63,7 @@ Include the token in all API requests using the `Authorization` header:
 Authorization: Bearer A21AAxxxx
 ```
 
-## Token lifecycle
+### Token lifecycle
 
 | Property | Details |
 |---|---|
@@ -76,7 +76,7 @@ Authorization: Bearer A21AAxxxx
 
 ---
 
-# OAuth scopes
+## OAuth scopes
 
 Scopes restrict what actions a token can perform. Request only the scopes your integration requires.
 
@@ -89,7 +89,7 @@ Scopes restrict what actions a token can perform. Request only the scopes your i
 | `https://uri.example.com/services/reporting/search/read` | Access transaction reporting |
 | `openid` | Access basic identity information of the authenticated user |
 
-## Requesting specific scopes
+### Requesting specific scopes
 
 Append the `scope` parameter to your token request to limit permissions:
 
@@ -102,11 +102,11 @@ curl -X POST https://api-m.sandbox.example.com/v1/oauth2/token \
 
 ---
 
-# Rate Limiting
+## Rate Limiting
 
 Rate limits protect API availability and prevent abuse. Exceeding them results in `429 Too Many Requests` responses.
 
-## Default limits
+### Default limits
 
 | Tier | Requests per minute | Requests per day |
 |---|---|---|
@@ -118,7 +118,7 @@ Rate limits protect API availability and prevent abuse. Exceeding them results i
 Contact API support to request an elevated rate limit tier for high-volume integrations.
 </Note>
 
-## Rate limit headers
+### Rate limit headers
 
 Every API response includes headers to help you track your usage:
 
@@ -129,7 +129,7 @@ Every API response includes headers to help you track your usage:
 | `X-RateLimit-Reset` | Unix timestamp when the current window resets |
 | `Retry-After` | Seconds to wait before retrying (only present on `429` responses) |
 
-## Handling 429 responses
+### Handling 429 responses
 
 When you receive a `429`, implement **exponential backoff with jitter**:
 
@@ -147,18 +147,18 @@ def request_with_backoff(fn, max_retries=5):
     raise Exception("Max retries exceeded")
 ```
 
-## Best practices
+### Best practices
 - Monitor `X-RateLimit-Remaining` proactively; slow down requests before hitting the limit.
 - Use batch processing or webhooks for high-volume operations rather than polling.
 - Cache access tokens; generating one per request wastes your rate limit budget.
 
 ---
 
-# Idempotency
+## Idempotency
 
 Idempotency allows you to safely retry API requests without the risk of creating duplicate transactions. This is critical for payment operations where network failures can leave the outcome uncertain.
 
-## How it works
+### How it works
 
 Include a unique `Example-Request-Id` header in `POST` requests. If Example Payments receives two requests with the same ID within 72 hours, it returns the original response without creating a duplicate resource.
 
@@ -166,7 +166,7 @@ Include a unique `Example-Request-Id` header in `POST` requests. If Example Paym
 Example-Request-Id: 7b92603e-77ed-4896-8e78-5dea2050476a
 ```
 
-## Requirements
+### Requirements
 
 | Requirement | Details |
 |---|---|
@@ -175,7 +175,7 @@ Example-Request-Id: 7b92603e-77ed-4896-8e78-5dea2050476a
 | Scope | Scoped to your client ID |
 | Validity | Stored for 72 hours from first request |
 
-## When to use idempotency keys
+### When to use idempotency keys
 
 | Endpoint | Use idempotency key? |
 |---|---|
@@ -185,7 +185,7 @@ Example-Request-Id: 7b92603e-77ed-4896-8e78-5dea2050476a
 | `POST /v2/payments/captures/{id}/refund` | **Yes**: prevents duplicate refunds |
 | `GET` requests | **No**: GET requests are inherently idempotent |
 
-## Generating idempotency keys
+### Generating idempotency keys
 
 ```javascript
 // Node.js
@@ -203,13 +203,13 @@ Generate a new key for each new logical operation. Do not reuse a key from a suc
 
 ---
 
-# API Versioning
+## API Versioning
 
-## Current version
+### Current version
 
 The current stable version of the Payments API is **v2**. All endpoints in this documentation target v2.
 
-## Version policy
+### Version policy
 
 | Rule | Details |
 |---|---|
@@ -218,7 +218,7 @@ The current stable version of the Payments API is **v2**. All endpoints in this 
 | Breaking changes | Require a version increment and are announced with a minimum 6-month deprecation period |
 | Sunset header | `Sunset` response header is added to deprecated endpoints with the planned removal date |
 
-## Checking for deprecations
+### Checking for deprecations
 
 When a `Sunset` header appears in a response, plan migration before the indicated date:
 
@@ -230,14 +230,14 @@ Link: <https://developer.example.com/api/rest/migration/v2>; rel="successor-vers
 
 ---
 
-# Environments
+## Environments
 
 | Environment | Purpose | Base URL |
 |---|---|---|
 | Sandbox | Development and integration testing | `https://api-m.sandbox.example.com` |
 | Production | Live transactions | `https://api-m.example.com` |
 
-## Key differences
+### Key differences
 
 - Sandbox credentials and production credentials are separate. Do not mix them.
 - Sandbox transactions use simulated funds and do not move real money.
@@ -246,11 +246,11 @@ Link: <https://developer.example.com/api/rest/migration/v2>; rel="successor-vers
 
 ---
 
-# Pagination
+## Pagination
 
 Endpoints that return collections support cursor-based pagination.
 
-## Query parameters
+### Query parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -258,7 +258,7 @@ Endpoints that return collections support cursor-based pagination.
 | `page` | integer | 1 | Page number to retrieve (1-indexed). |
 | `total_required` | boolean | `false` | If `true`, includes `total_items` and `total_pages` in the response. |
 
-## Paginated response
+### Paginated response
 
 ```json
 {
@@ -277,7 +277,7 @@ Use the `next` link to retrieve the subsequent page. Stop when no `next` link is
 
 ---
 
-# Date and time formats
+## Date and time formats
 
 All dates and timestamps in API requests and responses use **ISO 8601** format in UTC.
 
@@ -294,7 +294,7 @@ All dates and timestamps in API requests and responses use **ISO 8601** format i
 
 ---
 
-# Currency codes
+## Currency codes
 
 The API uses **ISO 4217** three-letter currency codes.
 
@@ -317,11 +317,11 @@ The API uses **ISO 4217** three-letter currency codes.
 
 ---
 
-# Webhook events
+## Webhook events
 
 Webhooks push real-time event notifications to your server, avoiding the need to poll for status changes.
 
-## Relevant payment events
+### Relevant payment events
 
 | Event type | Trigger |
 |---|---|
@@ -333,7 +333,7 @@ Webhooks push real-time event notifications to your server, avoiding the need to
 | `CHECKOUT.ORDER.APPROVED` | Buyer approves the order |
 | `CHECKOUT.ORDER.COMPLETED` | Order lifecycle is complete |
 
-## Webhook payload structure
+### Webhook payload structure
 
 ```json
 {
@@ -350,13 +350,13 @@ Webhooks push real-time event notifications to your server, avoiding the need to
 }
 ```
 
-## Validating webhook signatures
+### Validating webhook signatures
 
 Always verify the `EXAMPLE-TRANSMISSION-SIG` header to confirm the event originated from Example Payments before processing it.
 
 ---
 
-# Glossary
+## Glossary
 
 | Term | Definition |
 |---|---|
