@@ -2,7 +2,7 @@
 title: Payment Capture Integration Guide
 ---
 
-# Overview
+## Overview
 
 This guide walks you through the complete lifecycle of a card payment from creating an order to capturing funds using the Payments API. You can use this guide to:
 
@@ -15,7 +15,7 @@ This guide walks you through the complete lifecycle of a card payment from creat
 
 ---
 
-# Prerequisites
+## Prerequisites
 
 1. Sign up for a developer account at example.com:
   1. Go to **Account** > **Settings** > **Business**.
@@ -28,7 +28,7 @@ This guide walks you through the complete lifecycle of a card payment from creat
 
 ---
 
-# How it works
+## How it works
 
 The payment capture flow follows a three-phase model: **authorization**, **approval**, and **capture**. These phases are designed to separate the act of reserving funds from the act of collecting them, allowing merchants flexibility in fulfilment workflows.
 
@@ -65,9 +65,9 @@ sequenceDiagram
 
 ---
 
-# Capture payments
+## Capture payments
 
-## Step 1: Get access token
+### Step 1: Get access token
 
 Before making any API call, authenticate using your client credentials. 
 
@@ -99,7 +99,7 @@ Store the `access_token` securely. It expires after the duration specified in `e
 
 ---
 
-## Step 2: Create order
+### Step 2: Create order
 
 Create an order with `intent` set to `AUTHORIZE`. This reserves the payment method without collecting funds immediately.
 
@@ -165,7 +165,7 @@ curl -X POST https://api-m.sandbox.example.com/v2/checkout/orders \
 
 ---
 
-## Step 3: Redirect the buyer for approval
+### Step 3: Redirect the buyer for approval
 
 Use the `approve` URL returned in the response to redirect the buyer to the specific page.
 
@@ -181,7 +181,7 @@ https://yoursite.com/checkout/return?token=5O190127TN364715T&PayerID=YOURCUSTOME
 
 ---
 
-## Step 4: Authorize the payment
+### Step 4: Authorize the payment
 
 Once the buyer approves, authorize the payment to place a hold on the funds.
 
@@ -225,7 +225,7 @@ Record the `authorization_id` (`3C679366HH908993T`). It is required for the capt
 
 ---
 
-## Step 5: Capture the payment
+### Step 5: Capture the payment
 
 Pass the `authorization_id` from the authorization response as the path parameter to capture the authorized funds and complete the transaction.
 
@@ -277,7 +277,7 @@ A `status` of `COMPLETED` confirms the funds have been captured.
 
 ---
 
-## Step 6: Void an authorization (optional)
+### Step 6: Void an authorization (optional)
 
 If you need to cancel a hold without capturing, void the authorization.
 
