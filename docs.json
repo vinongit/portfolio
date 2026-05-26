@@ -14,12 +14,14 @@
   "topbarLinks": [
     { "name": "Portfolio", "url": "https://vinongit.github.io/portfolio/" }
   ],
-  "navigation": [
+  "navigation": {
+  "tabs": [
     {
-      "group": "Writing Samples",
+      "tab": "Writing Samples",
       "pages": ["integration-guide", "api-reference", "common-resources"]
     }
-  ],
+  ]
+  },
   "footer": {
     "socials": {
       "linkedin": "https://www.linkedin.com/in/vinoth-s-10779a17/"
