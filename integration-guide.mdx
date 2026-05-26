@@ -1,11 +1,8 @@
 ---
-title: "Payment Capture Integration Guide"
-description: "End-to-end guide covering authorization, capture, and settlement flows."
+title: Payment Capture Integration Guide
 ---
 
-# Payment Capture Integration Guide
-
-## Overview
+# Overview
 
 This guide walks you through the complete lifecycle of a card payment from creating an order to capturing funds using the Payments API. You can use this guide to:
 
@@ -18,20 +15,20 @@ This guide walks you through the complete lifecycle of a card payment from creat
 
 ---
 
-## Prerequisites
+# Prerequisites
 
-> Sign up for a developer account at example.com:
-  > Go to **Account** > **Settings** > **Business**.
-  > Follow the step-by-step instructions to configure your business account.
-  > Retrieve your sandbox client ID and client secret.
-> Set up the sandbox environment:
-  > Go to **Account** > **Settings** > **Sandbox**.
-  > Follow the step-by-step instructions to configure the sandbox environment.
-  > Retrieve your sandbox client ID and client secret.
+1. Sign up for a developer account at example.com:
+  1. Go to **Account** > **Settings** > **Business**.
+  2. Follow the step-by-step instructions to configure your business account.
+  3. Retrieve your sandbox client ID and client secret.
+2. Set up the sandbox environment:
+  1. Go to **Account** > **Settings** > **Sandbox**.
+  2. Follow the step-by-step instructions to configure the sandbox environment.
+  3. Retrieve your sandbox client ID and client secret.
 
 ---
 
-## How it works
+# How it works
 
 The payment capture flow follows a three-phase model: **authorization**, **approval**, and **capture**. These phases are designed to separate the act of reserving funds from the act of collecting them, allowing merchants flexibility in fulfilment workflows.
 
@@ -68,6 +65,8 @@ sequenceDiagram
 
 ---
 
+# Capture payments
+
 ## Step 1: Get access token
 
 Before making any API call, authenticate using your client credentials. 
@@ -96,7 +95,7 @@ Store the `access_token` securely. It expires after the duration specified in `e
 
 <Warning>Do not expose the token in client-side code.</Warning>
 
-Refer the [Authentication](./common-resources.md#authentication) section for more information.
+<Note>For more information, see the [Authentication](./common-resources#authentication) section.</Note>
 
 ---
 
@@ -109,7 +108,7 @@ Create an order with `intent` set to `AUTHORIZE`. This reserves the payment meth
 ```bash Sample request
 curl -X POST https://api-m.sandbox.example.com/v2/checkout/orders \
   -H 'Content-Type: application/json' \
-  -H 'Authorization: Bearer ACCESS_TOKEN' \
+  -H 'Authorization: Bearer ACCESS-TOKEN' \
   -H 'Example-Request-Id: 7b92603e-77ed-4896-8e78-5dea2050476a' \
   -d '{
     "intent": "AUTHORIZE",
@@ -161,7 +160,8 @@ curl -X POST https://api-m.sandbox.example.com/v2/checkout/orders \
 ```
 </CodeGroup>
 
-<Note>`Example-Request-Id` is an idempotency key. You can reuse it to safely retry the same call without creating duplicate orders. Refer the [Idempotency](./common-resources.md#idempotency) section in Common Resources for more information.</Note>
+<Note>`Example-Request-Id` is an idempotency key. You can reuse it to safely retry the same call without creating duplicate orders. For more information on idempotency, see the [Idempotency](./common-resources#idempotency) section in Common Resources.</Note>
+<Note>For more information about the API parameters, see the [API reference](./api-reference).</Note>
 
 ---
 
@@ -190,7 +190,7 @@ Once the buyer approves, authorize the payment to place a hold on the funds.
 ```bash Sample request
 curl -X POST https://api-m.sandbox.example.com/v2/checkout/orders/5O190127TN364715T/authorize \
   -H 'Content-Type: application/json' \
-  -H 'Authorization: Bearer ACCESS_TOKEN' \
+  -H 'Authorization: Bearer ACCESS-TOKEN' \
   -H 'Example-Request-Id: 3c5e2090-bc34-4c10-9f52-6d3fa9961882'
 ```
 
@@ -221,18 +221,23 @@ curl -X POST https://api-m.sandbox.example.com/v2/checkout/orders/5O190127TN3647
 
 Record the `authorization_id` (`3C679366HH908993T`). It is required for the capture step. Note the `expiration_time` — authorizations expire after 29 days if not captured.
 
+<Note>For more information about the API parameters, see the [API reference](./api-reference).</Note>
+
 ---
 
-## Step 5 — Capture the payment
+## Step 5: Capture the payment
 
 Pass the `authorization_id` from the authorization response as the path parameter to capture the authorized funds and complete the transaction.
 
-**Request — Full capture**
+- To capture the full authorized amount, set `final_capture` to `true` as shown in the full capture sample request. This indicates that no further captures will be made against this authorization.
+- To capture only part of the authorized amount, include the `amount` object as shown in the partial capture sample request. Here, `final_capture` is set to `false`, indicating that you may capture the remaining amount in a future request.
 
-```bash
+<CodeGroup>
+
+```bash Sample request - Full capture
 curl -X POST https://api-m.sandbox.example.com/v2/payments/authorizations/3C679366HH908993T/capture \
   -H 'Content-Type: application/json' \
-  -H 'Authorization: Bearer ACCESS_TOKEN' \
+  -H 'Authorization: Bearer ACCESS-TOKEN' \
   -H 'Example-Request-Id: 9d8a7f21-cc45-5e33-8g61-7e4gb0072993' \
   -d '{
     "final_capture": true,
@@ -240,25 +245,19 @@ curl -X POST https://api-m.sandbox.example.com/v2/payments/authorizations/3C6793
   }'
 ```
 
-**Request — Partial capture**
 
-To capture only part of the authorized amount, include the `amount` object:
-
-```bash
+```bash Sample request - Partial capture
 curl -X POST https://api-m.sandbox.example.com/v2/payments/authorizations/3C679366HH908993T/capture \
   -H 'Content-Type: application/json' \
-  -H 'Authorization: Bearer ACCESS_TOKEN' \
+  -H 'Authorization: Bearer ACCESS-TOKEN' \
   -d '{
     "amount": { "currency_code": "USD", "value": "60.00" },
     "final_capture": false
   }'
 ```
 
-Setting `final_capture: false` keeps the remaining authorization alive for subsequent capture calls.
 
-**Response (201 Created)**
-
-```json
+```json Sample response
 {
   "id": "2GG279541U471931P",
   "status": "COMPLETED",
@@ -270,35 +269,39 @@ Setting `final_capture: false` keeps the remaining authorization alive for subse
 }
 ```
 
+</CodeGroup>
+
 A `status` of `COMPLETED` confirms the funds have been captured.
+
+<Note>For more information about the API parameters, see the [API reference](./api-reference).</Note>
 
 ---
 
-## Step 6 — Void an authorization (optional)
+## Step 6: Void an authorization (optional)
 
 If you need to cancel a hold without capturing, void the authorization.
 
-```bash
+```bash Sample request
 curl -X POST https://api-m.sandbox.example.com/v2/payments/authorizations/3C679366HH908993T/void \
   -H 'Content-Type: application/json' \
-  -H 'Authorization: Bearer ACCESS_TOKEN'
+  -H 'Authorization: Bearer ACCESS-TOKEN'
 ```
 
-**Response (204 No Content)**
-
 A `204` response with no body indicates the authorization was voided successfully.
+
+<Note>For more information about the API parameters, see the [API reference](./api-reference).</Note>
 
 ---
 
 ## Error handling
 
-| Scenario | HTTP Status | Error code | Recommended action |
+| Scenario | HTTP status | Error code | Recommended action |
 |---|---|---|---|
 | Invalid access token | `401` | `INVALID_TOKEN` | Re-authenticate and retry. |
 | Order already captured | `422` | `ORDER_ALREADY_CAPTURED` | Do not retry; show order status to buyer. |
 | Authorization expired | `422` | `AUTHORIZATION_EXPIRED` | Restart the order flow with a new order. |
 | Amount exceeds authorization | `422` | `AMOUNT_MISMATCH` | Reduce capture amount or create a new order. |
-| Rate limit exceeded | `429` | `RATE_LIMIT_REACHED` | Implement exponential backoff. See [Rate Limiting](./common-resources.md#rate-limiting). |
+| Rate limit exceeded | `429` | `RATE_LIMIT_REACHED` | Implement exponential backoff. For more information on rate limiting, see [Rate Limiting](./common-resources#rate-limiting). |
 
 ---
 
@@ -309,14 +312,15 @@ Use the following test card numbers in the sandbox environment to simulate diffe
 | Card number | Outcome |
 |---|---|
 | `4111 1111 1111 1111` | Successful authorization and capture |
-| `4000 0000 0000 0002` | Card declined — insufficient funds |
+| `4000 0000 0000 0002` | Card declined, insufficient funds |
 | `4000 0000 0000 9995` | Authorization approved, capture declined |
 
-Always validate the full flow — from order creation to capture — in the sandbox before moving to production.
+<Warning>
+Validate the complete flow from order creation to capture in the sandbox before moving to production. This will help you identify and fix any integration issues before you go live.
+</Warning>
 
 ---
 
-## Next steps
+## Additional resource
 
-- Review the [Payments API Reference](./api-reference.md) for the complete schema of all endpoints used in this guide.
-- See [Common Resources](./common-resources.md) for authentication setup, rate limiting guidelines, idempotency keys, and error structures.
+Refer to [Common Resources](./common-resources) for authentication setup, rate limiting guidelines, idempotency keys, and error structures.

@@ -1,0 +1,389 @@
+openapi: 3.0.3
+info:
+  title: Payments API
+  version: "2.0"
+  description: API for creating and managing payment orders, authorizations, captures, and refunds.
+
+servers:
+  - url: https://api-m.sandbox.example.com
+    description: Sandbox
+  - url: https://api-m.example.com
+    description: Production
+
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+
+  schemas:
+    Money:
+      type: object
+      required: [currency_code, value]
+      properties:
+        currency_code:
+          type: string
+          example: USD
+        value:
+          type: string
+          example: "100.00"
+
+    AmountBreakdown:
+      type: object
+      properties:
+        item_total: { $ref: '#/components/schemas/Money' }
+        shipping:   { $ref: '#/components/schemas/Money' }
+        tax_total:  { $ref: '#/components/schemas/Money' }
+        discount:   { $ref: '#/components/schemas/Money' }
+
+    Amount:
+      allOf:
+        - $ref: '#/components/schemas/Money'
+        - type: object
+          properties:
+            breakdown: { $ref: '#/components/schemas/AmountBreakdown' }
+
+    LinkDescription:
+      type: object
+      properties:
+        href:   { type: string }
+        rel:    { type: string }
+        method: { type: string, enum: [GET, POST, PUT, PATCH, DELETE] }
+
+    ErrorDetail:
+      type: object
+      properties:
+        field:       { type: string }
+        issue:       { type: string }
+        description: { type: string }
+
+    ErrorResponse:
+      type: object
+      properties:
+        name:     { type: string }
+        message:  { type: string }
+        debug_id: { type: string }
+        details:
+          type: array
+          items: { $ref: '#/components/schemas/ErrorDetail' }
+        links:
+          type: array
+          items: { $ref: '#/components/schemas/LinkDescription' }
+
+    PurchaseUnit:
+      type: object
+      required: [amount]
+      properties:
+        reference_id: { type: string, maxLength: 256 }
+        description:  { type: string, maxLength: 127 }
+        amount:       { $ref: '#/components/schemas/Amount' }
+
+    ApplicationContext:
+      type: object
+      properties:
+        return_url:  { type: string }
+        cancel_url:  { type: string }
+        brand_name:  { type: string }
+        user_action: { type: string, enum: [PAY_NOW, CONTINUE], default: CONTINUE }
+
+    OrderStatus:
+      type: string
+      enum: [CREATED, SAVED, APPROVED, VOIDED, COMPLETED, PAYER_ACTION_REQUIRED]
+
+    AuthorizationStatus:
+      type: string
+      enum: [CREATED, CAPTURED, PARTIALLY_CAPTURED, VOIDED, EXPIRED, PENDING]
+
+    CaptureStatus:
+      type: string
+      enum: [COMPLETED, DECLINED, PARTIALLY_REFUNDED, REFUNDED, PENDING, FAILED]
+
+    SellerProtection:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ELIGIBLE, PARTIALLY_ELIGIBLE, NOT_ELIGIBLE]
+        dispute_categories:
+          type: array
+          items: { type: string }
+
+    Authorization:
+      type: object
+      properties:
+        id:                { type: string }
+        status:            { $ref: '#/components/schemas/AuthorizationStatus' }
+        amount:            { $ref: '#/components/schemas/Money' }
+        expiration_time:   { type: string, format: date-time }
+        seller_protection: { $ref: '#/components/schemas/SellerProtection' }
+        links:
+          type: array
+          items: { $ref: '#/components/schemas/LinkDescription' }
+
+    Capture:
+      type: object
+      properties:
+        id:                { type: string }
+        status:            { $ref: '#/components/schemas/CaptureStatus' }
+        amount:            { $ref: '#/components/schemas/Money' }
+        final_capture:     { type: boolean }
+        invoice_id:        { type: string }
+        seller_protection: { $ref: '#/components/schemas/SellerProtection' }
+        create_time:       { type: string, format: date-time }
+        update_time:       { type: string, format: date-time }
+
+    Refund:
+      type: object
+      properties:
+        id:          { type: string }
+        status:      { type: string, enum: [COMPLETED, FAILED, PENDING] }
+        amount:      { $ref: '#/components/schemas/Money' }
+        create_time: { type: string, format: date-time }
+        update_time: { type: string, format: date-time }
+
+  responses:
+    Unauthorized:
+      description: Invalid or expired access token.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    UnprocessableEntity:
+      description: Semantically invalid request.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    TooManyRequests:
+      description: Rate limit exceeded.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+paths:
+  /v2/checkout/orders:
+    post:
+      summary: Create an order
+      operationId: createOrder
+      parameters:
+        - in: header
+          name: Example-Request-Id
+          schema: { type: string }
+          description: Idempotency key (UUID v4).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [intent, purchase_units]
+              properties:
+                intent:
+                  type: string
+                  enum: [CAPTURE, AUTHORIZE]
+                purchase_units:
+                  type: array
+                  minItems: 1
+                  maxItems: 10
+                  items: { $ref: '#/components/schemas/PurchaseUnit' }
+                application_context: { $ref: '#/components/schemas/ApplicationContext' }
+      responses:
+        "201":
+          description: Order created.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:     { type: string }
+                  status: { $ref: '#/components/schemas/OrderStatus' }
+                  links:
+                    type: array
+                    items: { $ref: '#/components/schemas/LinkDescription' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "422": { $ref: '#/components/responses/UnprocessableEntity' }
+        "429": { $ref: '#/components/responses/TooManyRequests' }
+
+  /v2/checkout/orders/{order_id}:
+    get:
+      summary: Get order details
+      operationId: getOrder
+      parameters:
+        - in: path
+          name: order_id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Order details.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:             { type: string }
+                  status:         { $ref: '#/components/schemas/OrderStatus' }
+                  purchase_units:
+                    type: array
+                    items: { $ref: '#/components/schemas/PurchaseUnit' }
+                  links:
+                    type: array
+                    items: { $ref: '#/components/schemas/LinkDescription' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "404":
+          description: Order not found.
+
+  /v2/checkout/orders/{order_id}/authorize:
+    post:
+      summary: Authorize payment for an order
+      operationId: authorizeOrder
+      parameters:
+        - in: path
+          name: order_id
+          required: true
+          schema: { type: string }
+        - in: header
+          name: Example-Request-Id
+          schema: { type: string }
+      responses:
+        "201":
+          description: Authorization created.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:     { type: string }
+                  status: { $ref: '#/components/schemas/OrderStatus' }
+                  purchase_units:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        reference_id: { type: string }
+                        payments:
+                          type: object
+                          properties:
+                            authorizations:
+                              type: array
+                              items: { $ref: '#/components/schemas/Authorization' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "422": { $ref: '#/components/responses/UnprocessableEntity' }
+
+  /v2/checkout/orders/{order_id}/capture:
+    post:
+      summary: Capture payment for an order
+      operationId: captureOrder
+      parameters:
+        - in: path
+          name: order_id
+          required: true
+          schema: { type: string }
+        - in: header
+          name: Example-Request-Id
+          schema: { type: string }
+      responses:
+        "201":
+          description: Payment captured.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Capture' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "422": { $ref: '#/components/responses/UnprocessableEntity' }
+
+  /v2/payments/authorizations/{auth_id}/capture:
+    post:
+      summary: Capture an authorization
+      operationId: captureAuthorization
+      parameters:
+        - in: path
+          name: auth_id
+          required: true
+          schema: { type: string }
+        - in: header
+          name: Example-Request-Id
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:        { $ref: '#/components/schemas/Money' }
+                final_capture: { type: boolean, default: false }
+                note_to_payer: { type: string, maxLength: 255 }
+                invoice_id:    { type: string, maxLength: 127 }
+      responses:
+        "201":
+          description: Authorization captured.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Capture' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "422": { $ref: '#/components/responses/UnprocessableEntity' }
+        "429": { $ref: '#/components/responses/TooManyRequests' }
+
+  /v2/payments/authorizations/{auth_id}/void:
+    post:
+      summary: Void an authorization
+      operationId: voidAuthorization
+      parameters:
+        - in: path
+          name: auth_id
+          required: true
+          schema: { type: string }
+      responses:
+        "204":
+          description: Authorization voided. No response body.
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "422": { $ref: '#/components/responses/UnprocessableEntity' }
+
+  /v2/payments/captures/{capture_id}:
+    get:
+      summary: Get capture details
+      operationId: getCapture
+      parameters:
+        - in: path
+          name: capture_id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Capture details.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Capture' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "404":
+          description: Capture not found.
+
+  /v2/payments/captures/{capture_id}/refund:
+    post:
+      summary: Refund a captured payment
+      operationId: refundCapture
+      parameters:
+        - in: path
+          name: capture_id
+          required: true
+          schema: { type: string }
+        - in: header
+          name: Example-Request-Id
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:        { $ref: '#/components/schemas/Money' }
+                note_to_payer: { type: string, maxLength: 255 }
+                invoice_id:    { type: string, maxLength: 127 }
+      responses:
+        "201":
+          description: Refund created.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Refund' }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "422": { $ref: '#/components/responses/UnprocessableEntity' }
